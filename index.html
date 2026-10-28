@@ -1,0 +1,1798 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TARIK TAMBANG MATEMATIKA — 50 TANTANGAN</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Google Fonts: Fredoka & Nunito untuk tampilan ceria ramah anak SD -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            fredoka: ['Fredoka', 'sans-serif'],
+            nunito: ['Nunito', 'sans-serif'],
+          },
+          colors: {
+            redTeam: {
+              light: '#FEE2E2',
+              DEFAULT: '#EF4444',
+              dark: '#B91C1C',
+              glow: '#F87171'
+            },
+            blueTeam: {
+              light: '#DBEAFE',
+              DEFAULT: '#3B82F6',
+              dark: '#1D4ED8',
+              glow: '#60A5FA'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    body {
+      font-family: 'Nunito', sans-serif;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+    .font-heading {
+      font-family: 'Fredoka', cursive, sans-serif;
+    }
+    /* Animasi Tali dan Pulsasi */
+    @keyframes pulse-fast {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.08); }
+    }
+    .animate-pulse-fast {
+      animation: pulse-fast 0.6s infinite ease-in-out;
+    }
+    @keyframes wiggle {
+      0%, 100% { transform: rotate(-3deg); }
+      50% { transform: rotate(3deg); }
+    }
+    .animate-wiggle {
+      animation: wiggle 0.8s infinite ease-in-out;
+    }
+    /* Custom Scrollbar */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+      border-radius: 999px;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #cbd5e1;
+      border-radius: 999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #94a3b8;
+    }
+
+    /* Print Optimization for PDF Export */
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      #screen-result {
+        display: block !important;
+      }
+      .print-shadow-none {
+        box-shadow: none !important;
+        border: 1px solid #cbd5e1 !important;
+      }
+      .print-break-inside {
+        break-inside: avoid;
+      }
+    }
+  </style>
+</head>
+<body class="bg-gradient-to-b from-sky-100 via-amber-50 to-emerald-100 min-h-screen text-slate-800 flex flex-col justify-between antialiased">
+
+  <!-- ========================================== -->
+  <!-- MODAL: CARA BERMAIN                       -->
+  <!-- ========================================== -->
+  <div id="modal-rules" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-xl w-full p-6 sm:p-8 shadow-2xl border-4 border-amber-300 transform transition-all">
+      <div class="flex items-center justify-between pb-3 border-b-2 border-slate-100">
+        <h3 class="font-heading text-2xl sm:text-3xl font-bold text-amber-600 flex items-center gap-2">
+          📖 Aturan & Cara Bermain
+        </h3>
+        <button onclick="closeModal('modal-rules')" class="text-slate-400 hover:text-slate-700 text-3xl font-bold leading-none">&times;</button>
+      </div>
+      <div class="mt-4 space-y-3 text-slate-700 text-sm sm:text-base leading-relaxed max-h-[60vh] overflow-y-auto pr-2">
+        <div class="p-3 bg-red-50 rounded-2xl border border-red-200">
+          <strong class="text-red-600">🔴 Kelompok Merah</strong> di sebelah kiri dan <strong class="text-blue-600">🔵 Kelompok Biru</strong> di sebelah kanan.
+        </div>
+        <p><strong>🎯 50 Tantangan:</strong> Penjumlahan (13 soal), Pengurangan (13 soal), Perkalian (12 soal), dan Pembagian (12 soal).</p>
+        <p><strong>⏱️ Waktu:</strong> Tersedia 60 detik per soal. Jika waktu habis, soal dilewati secara otomatis.</p>
+        <p><strong>💪 Tarik Tali:</strong> Setiap jawaban <span class="text-emerald-600 font-bold">BENAR</span> menambah <span class="text-emerald-600 font-bold">10 Poin</span> dan menarik tali 1 langkah ke arah kelompokmu!</p>
+        <p><strong>🚩 Batas Kemenangan:</strong> Berjarak 15 langkah dari titik tengah. Jika tali ditarik 15 langkah sebelum soal 50, kelompok tersebut langsung menang!</p>
+        <p><strong>🎮 Pilihan Mode:</strong>
+          <br>• <em>Bergiliran:</em> Soal bergantian otomatis antara Merah & Biru.
+          <br>• <em>Rebutan:</em> Guru/Operator menekan tombol kelompok yang tercepat mengacungkan tangan, lalu kelompok tersebut menjawab pilihan A, B, C, atau D.
+        </p>
+      </div>
+      <div class="mt-6 text-center">
+        <button onclick="closeModal('modal-rules')" class="px-8 py-3 bg-amber-500 hover:bg-amber-600 text-white font-heading font-bold text-lg rounded-2xl shadow-lg transition-transform active:scale-95">
+          Saya Paham, Siap Bermain! 🚀
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: JEDA PERMAINAN                     -->
+  <!-- ========================================== -->
+  <div id="modal-pause" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border-4 border-sky-400">
+      <div class="w-16 h-16 bg-sky-100 text-sky-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl font-black">
+        ⏸️
+      </div>
+      <h3 class="font-heading text-2xl font-bold text-slate-800">Permainan Dijeda</h3>
+      <p class="text-slate-500 text-sm mt-1">Waktu dihentikan sementara. Mau lanjut atau kembali?</p>
+      <div class="mt-6 flex flex-col gap-3">
+        <button onclick="resumeGame()" class="w-full py-3 bg-emerald-500 hover:bg-emerald-600 text-white font-heading font-bold text-lg rounded-2xl shadow-md transition-transform active:scale-95">
+          ▶️ Lanjutkan Permainan
+        </button>
+        <button onclick="openRestartConfirmModal()" class="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl transition-colors">
+          🔄 Mulai Ulang Sesi
+        </button>
+        <button onclick="goToMenuFromGame()" class="w-full py-2.5 bg-rose-50 hover:bg-rose-100 text-rose-600 font-bold rounded-2xl transition-colors">
+          🏠 Kembali ke Menu Utama
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: KONFIRMASI MULAI ULANG             -->
+  <!-- ========================================== -->
+  <div id="modal-confirm-restart" class="fixed inset-0 bg-black/70 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-sm w-full p-6 text-center shadow-2xl border-4 border-amber-400">
+      <div class="w-16 h-16 bg-amber-100 text-amber-600 rounded-full flex items-center justify-center mx-auto mb-4 text-3xl font-black">
+        ⚠️
+      </div>
+      <h3 class="font-heading text-2xl font-bold text-slate-800">Mulai Ulang?</h3>
+      <p class="text-slate-500 text-sm mt-1">Skor dan kemajuan 50 soal saat ini akan dikosongkan kembali.</p>
+      <div class="mt-6 flex gap-3">
+        <button onclick="closeModal('modal-confirm-restart')" class="flex-1 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-2xl">
+          Batal
+        </button>
+        <button onclick="confirmRestartGame()" class="flex-1 py-2.5 bg-amber-500 hover:bg-amber-600 text-white font-bold rounded-2xl shadow">
+          Ya, Ulangi
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========================================== -->
+  <!-- MODAL: KEMENANGAN DINI (15 LANGKAH)       -->
+  <!-- ========================================== -->
+  <div id="modal-early-win" class="fixed inset-0 bg-black/75 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 text-center shadow-2xl border-4 border-yellow-400">
+      <div class="text-5xl mb-2 animate-wiggle inline-block">🏆</div>
+      <h3 class="font-heading text-2xl sm:text-3xl font-extrabold text-amber-600" id="early-win-title">
+        Garis Kemenangan Tercapai!
+      </h3>
+      <p class="text-slate-600 text-sm sm:text-base mt-2" id="early-win-desc">
+        Kelompok telah menarik tali sejauh 15 langkah penuh!
+      </p>
+      <div class="p-3 my-4 bg-amber-50 rounded-2xl border border-amber-200 text-amber-900 text-sm font-semibold">
+        Apakah Anda ingin mengakhiri pertandingan sekarang atau melanjutkan sisa soal sebagai mode latihan?
+      </div>
+      <div class="flex flex-col sm:flex-row gap-3">
+        <button onclick="finishGameEarly()" class="flex-1 py-3 bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-heading font-bold rounded-2xl shadow-lg transition-transform active:scale-95">
+          🏁 Selesaikan & Lihat Hasil
+        </button>
+        <button onclick="continueAsPractice()" class="flex-1 py-3 bg-sky-500 hover:bg-sky-600 text-white font-heading font-bold rounded-2xl shadow transition-transform active:scale-95">
+          📚 Lanjut Latihan Soal
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- ======================================================== -->
+  <!-- 1. HALAMAN PEMBUKA (MENU UTAMA)                          -->
+  <!-- ======================================================== -->
+  <main id="screen-menu" class="w-full max-w-5xl mx-auto p-4 sm:p-6 my-auto">
+    <div class="bg-white/90 backdrop-blur-md rounded-3xl shadow-2xl border-4 border-amber-300 p-6 sm:p-10 text-center relative overflow-hidden">
+      <!-- Ornamen Pojok -->
+      <div class="absolute -top-10 -left-10 w-32 h-32 bg-red-200 rounded-full opacity-40 blur-xl"></div>
+      <div class="absolute -bottom-10 -right-10 w-32 h-32 bg-blue-200 rounded-full opacity-40 blur-xl"></div>
+
+      <!-- Badge Suara & Info -->
+      <div class="flex justify-between items-center mb-4">
+        <span class="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-full text-xs font-black uppercase tracking-wider bg-amber-100 text-amber-800 border border-amber-300">
+          🎮 Edisi Sekolah Dasar
+        </span>
+        <button id="menu-sound-btn" onclick="toggleSound()" class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold bg-slate-100 hover:bg-slate-200 text-slate-700 transition">
+          <span id="sound-icon">🔊</span>
+          <span id="sound-label">Suara: AKTIF</span>
+        </button>
+      </div>
+
+      <!-- Judul & Subjudul -->
+      <h1 class="font-heading text-4xl sm:text-6xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-red-600 via-amber-600 to-blue-600 drop-shadow-sm">
+        TARIK TAMBANG MATEMATIKA
+      </h1>
+      <p class="font-heading text-lg sm:text-2xl font-bold text-amber-700 mt-2">
+        ⚡ 50 Tantangan Adu Cepat Berhitung ⚡
+      </p>
+
+      <!-- Ilustrasi Kartun Tarik Tambang -->
+      <div class="my-6 py-4 px-2 bg-gradient-to-r from-red-50 via-amber-50 to-blue-50 rounded-2xl border-2 border-dashed border-amber-300 flex items-center justify-around relative">
+        <!-- Tim Merah Kartun -->
+        <div class="flex items-center gap-1 sm:gap-2">
+          <div class="text-4xl sm:text-6xl animate-bounce" style="animation-duration: 1.8s;">👦🔴</div>
+          <div class="text-3xl sm:text-5xl animate-bounce" style="animation-duration: 2.1s;">👧🔴</div>
+          <div class="font-heading font-black text-red-600 text-sm sm:text-base hidden sm:block">TIM MERAH</div>
+        </div>
+        <!-- Tali Tambang Kartun -->
+        <div class="flex-1 max-w-[180px] sm:max-w-xs flex items-center justify-center relative">
+          <div class="h-3 w-full bg-amber-800 rounded-full shadow-inner border border-amber-950 flex items-center justify-center">
+            <div class="w-5 h-5 bg-red-600 rotate-45 transform border-2 border-white shadow animate-pulse"></div>
+          </div>
+        </div>
+        <!-- Tim Biru Kartun -->
+        <div class="flex items-center gap-1 sm:gap-2">
+          <div class="font-heading font-black text-blue-600 text-sm sm:text-base hidden sm:block">TIM BIRU</div>
+          <div class="text-3xl sm:text-5xl animate-bounce" style="animation-duration: 2s;">👧🔵</div>
+          <div class="text-4xl sm:text-6xl animate-bounce" style="animation-duration: 1.7s;">👦🔵</div>
+        </div>
+      </div>
+
+      <!-- Pengaturan Nama Tim & Mode -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6 text-left mb-6">
+        <!-- Kolom Kelompok Merah -->
+        <div class="bg-red-50/80 p-4 rounded-2xl border-2 border-red-200">
+          <label class="block font-heading font-bold text-red-700 text-sm mb-1">
+            🔴 Nama Kelompok Merah (Kiri)
+          </label>
+          <input type="text" id="input-team-red" value="Garuda Merah" maxlength="20"
+            class="w-full px-4 py-2.5 rounded-xl border-2 border-red-300 font-bold text-slate-800 focus:outline-none focus:border-red-500 bg-white shadow-sm" placeholder="Nama Kelompok Merah">
+        </div>
+        <!-- Kolom Kelompok Biru -->
+        <div class="bg-blue-50/80 p-4 rounded-2xl border-2 border-blue-200">
+          <label class="block font-heading font-bold text-blue-700 text-sm mb-1">
+            🔵 Nama Kelompok Biru (Kanan)
+          </label>
+          <input type="text" id="input-team-blue" value="Rajawali Biru" maxlength="20"
+            class="w-full px-4 py-2.5 rounded-xl border-2 border-blue-300 font-bold text-slate-800 focus:outline-none focus:border-blue-500 bg-white shadow-sm" placeholder="Nama Kelompok Biru">
+        </div>
+
+        <!-- Pilihan Mode Permainan -->
+        <div class="bg-slate-50 p-4 rounded-2xl border-2 border-slate-200">
+          <label class="block font-heading font-bold text-slate-700 text-sm mb-1.5">
+            🎯 Mode Permainan
+          </label>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="flex items-center gap-2 p-2.5 bg-white rounded-xl border-2 border-slate-200 cursor-pointer hover:border-amber-400 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 transition">
+              <input type="radio" name="game-mode" value="turn" checked class="accent-amber-500">
+              <span class="text-xs sm:text-sm font-bold text-slate-700">Bergiliran (A-B)</span>
+            </label>
+            <label class="flex items-center gap-2 p-2.5 bg-white rounded-xl border-2 border-slate-200 cursor-pointer hover:border-amber-400 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 transition">
+              <input type="radio" name="game-mode" value="rebutan" class="accent-amber-500">
+              <span class="text-xs sm:text-sm font-bold text-slate-700">Rebutan (Operator)</span>
+            </label>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1.5 italic" id="mode-desc">
+            *Mode Bergiliran: Soal ganjil untuk Merah, soal genap untuk Biru.
+          </p>
+        </div>
+
+        <!-- Pilihan Tingkat Kesulitan / Pengacakan -->
+        <div class="bg-slate-50 p-4 rounded-2xl border-2 border-slate-200">
+          <label class="block font-heading font-bold text-slate-700 text-sm mb-1.5">
+            🔀 Urutan & Tingkat Kesulitan
+          </label>
+          <div class="grid grid-cols-2 gap-2">
+            <label class="flex items-center gap-2 p-2.5 bg-white rounded-xl border-2 border-slate-200 cursor-pointer hover:border-amber-400 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 transition">
+              <input type="radio" name="difficulty-mode" value="easy" checked class="accent-amber-500">
+              <span class="text-xs sm:text-sm font-bold text-slate-700">Mudah (Terurut)</span>
+            </label>
+            <label class="flex items-center gap-2 p-2.5 bg-white rounded-xl border-2 border-slate-200 cursor-pointer hover:border-amber-400 has-[:checked]:border-amber-500 has-[:checked]:bg-amber-50 transition">
+              <input type="radio" name="difficulty-mode" value="mixed" class="accent-amber-500">
+              <span class="text-xs sm:text-sm font-bold text-slate-700">Campuran (Acak)</span>
+            </label>
+          </div>
+          <p class="text-[11px] text-slate-500 mt-1.5 italic">
+            *Tetap menggunakan 50 soal bank resmi (+, -, ×, ÷ SD).
+          </p>
+        </div>
+      </div>
+
+      <!-- Tombol Aksi Utama -->
+      <div class="flex flex-col sm:flex-row items-center justify-center gap-4 pt-2">
+        <button onclick="startGame()" class="w-full sm:w-auto px-10 py-4 bg-gradient-to-r from-emerald-500 to-green-600 hover:from-emerald-600 hover:to-green-700 text-white font-heading font-extrabold text-xl sm:text-2xl rounded-2xl shadow-xl hover:shadow-green-300/50 transform hover:-translate-y-0.5 active:scale-95 transition-all">
+          🚀 MULAI PERMAINAN
+        </button>
+        <button onclick="openModal('modal-rules')" class="w-full sm:w-auto px-6 py-4 bg-amber-100 hover:bg-amber-200 text-amber-900 font-heading font-bold text-lg rounded-2xl border-2 border-amber-300 transition">
+          📖 CARA BERMAIN
+        </button>
+      </div>
+    </div>
+  </main>
+
+
+  <!-- ======================================================== -->
+  <!-- 2. HALAMAN PERMAINAN AKTIF                               -->
+  <!-- ======================================================== -->
+  <section id="screen-game" class="w-full max-w-5xl mx-auto p-2 sm:p-4 hidden flex-col gap-3 my-auto">
+    <!-- Header Atas: Status, Timer, Skor -->
+    <header class="bg-white/95 backdrop-blur-md rounded-2xl p-3 sm:p-4 shadow-md border-2 border-amber-200">
+      <div class="flex flex-wrap items-center justify-between gap-2">
+        <!-- Tombol Aksi Cepat Kiri -->
+        <div class="flex items-center gap-1.5">
+          <button onclick="pauseGame()" title="Jeda Permainan" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-bold border border-slate-300 transition">
+            ⏸️ Jeda
+          </button>
+          <button onclick="openRestartConfirmModal()" title="Mulai Ulang" class="px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-bold border border-slate-300 transition">
+            🔄 Ulang
+          </button>
+          <button onclick="toggleSound()" title="Suara" class="px-2.5 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-bold border border-slate-300 transition">
+            <span id="game-sound-icon">🔊</span>
+          </button>
+        </div>
+
+        <!-- Indikator Soal & Kategori -->
+        <div class="text-center order-first sm:order-none w-full sm:w-auto">
+          <div class="inline-flex items-center gap-2 bg-amber-100 text-amber-900 px-4 py-1 rounded-full font-heading font-extrabold text-sm sm:text-base border border-amber-300">
+            <span id="label-question-number">SOAL 1 DARI 50</span>
+            <span class="text-amber-400">•</span>
+            <span id="label-question-category" class="text-xs uppercase bg-white px-2 py-0.5 rounded-full text-amber-700 shadow-sm">PENJUMLAHAN</span>
+          </div>
+        </div>
+
+        <!-- Timer Hitung Mundur 60 Detik -->
+        <div class="flex items-center gap-2">
+          <div id="timer-box" class="flex items-center gap-2 px-3.5 py-1.5 bg-emerald-100 text-emerald-800 border-2 border-emerald-400 rounded-2xl font-mono font-black text-lg sm:text-xl shadow-inner transition-colors duration-300">
+            <span>⏱️</span>
+            <span id="timer-text">60s</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Skor Kedua Tim & Giliran -->
+      <div class="grid grid-cols-2 gap-3 mt-3 pt-3 border-t border-slate-200">
+        <!-- Kartu Skor Tim Merah -->
+        <div id="badge-team-red" class="p-2 sm:p-2.5 rounded-xl border-2 border-red-300 bg-red-50 flex items-center justify-between transition-all duration-300">
+          <div class="truncate pr-2">
+            <span class="text-xs font-bold text-red-500 uppercase tracking-wider block">TIM MERAH</span>
+            <span id="game-name-red" class="font-heading font-black text-sm sm:text-base text-red-700 truncate block">Garuda Merah</span>
+          </div>
+          <div class="text-right">
+            <span id="score-red" class="font-heading font-black text-2xl sm:text-3xl text-red-600">0</span>
+            <span class="text-[10px] text-red-400 font-bold block">Poin</span>
+          </div>
+        </div>
+
+        <!-- Kartu Skor Tim Biru -->
+        <div id="badge-team-blue" class="p-2 sm:p-2.5 rounded-xl border-2 border-blue-300 bg-blue-50 flex items-center justify-between transition-all duration-300">
+          <div class="truncate pr-2">
+            <span class="text-xs font-bold text-blue-500 uppercase tracking-wider block">TIM BIRU</span>
+            <span id="game-name-blue" class="font-heading font-black text-sm sm:text-base text-blue-700 truncate block">Rajawali Biru</span>
+          </div>
+          <div class="text-right">
+            <span id="score-blue" class="font-heading font-black text-2xl sm:text-3xl text-blue-600">0</span>
+            <span class="text-[10px] text-blue-400 font-bold block">Poin</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Progress Bar 50 Soal -->
+      <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden mt-3">
+        <div id="progress-bar-50" class="h-full bg-gradient-to-r from-red-500 via-amber-400 to-blue-500 transition-all duration-300" style="width: 2%;"></div>
+      </div>
+    </header>
+
+    <!-- Arena Tarik Tambang: 2D Canvas Animasi -->
+    <div class="bg-white rounded-2xl p-2 sm:p-3 shadow-lg border-2 border-amber-300 relative overflow-hidden flex flex-col items-center">
+      <!-- Banner Siapa yang Menjawab -->
+      <div id="turn-banner" class="w-full py-1 px-4 mb-1 text-center font-heading font-extrabold text-sm sm:text-base rounded-xl transition-all duration-300 bg-red-100 text-red-800 border border-red-300">
+        🔴 GILIRAN KELOMPOK MERAH
+      </div>
+
+      <!-- Canvas Lapangan Tarik Tambang -->
+      <canvas id="arenaCanvas" width="800" height="230" class="w-full h-auto rounded-xl bg-gradient-to-b from-sky-200 via-emerald-100 to-emerald-300 border border-emerald-400 shadow-inner block"></canvas>
+
+      <!-- Meteran Posisi Tali (-15 s/d +15) -->
+      <div class="w-full px-2 sm:px-6 pt-2 flex items-center justify-between text-[11px] sm:text-xs font-bold text-slate-500">
+        <span class="text-red-600 font-black">🚩 MENANG MERAH (-15)</span>
+        <span class="text-slate-400">TITIK TENGAH (0)</span>
+        <span class="text-blue-600 font-black">(+15) MENANG BIRU 🚩</span>
+      </div>
+      <div class="w-full px-2 sm:px-6 flex items-center justify-center gap-1 mt-0.5">
+        <div class="text-xs font-extrabold text-slate-700 bg-slate-100 px-3 py-0.5 rounded-full border border-slate-300" id="rope-status-text">
+          Posisi Tali: Netral (0 Langkah)
+        </div>
+      </div>
+    </div>
+
+    <!-- Panel Soal Matematika & Tombol Pilihan Jawaban -->
+    <div class="bg-white/95 backdrop-blur-md rounded-2xl p-4 sm:p-5 shadow-lg border-2 border-amber-300 flex flex-col gap-3">
+      <!-- Khusus Mode Rebutan: Tombol Guru Menentukan Penjawab -->
+      <div id="buzzer-container" class="hidden flex items-center justify-center gap-3 pb-2 border-b border-slate-200">
+        <button id="buzz-red-btn" onclick="selectBuzzerTeam('red')" class="flex-1 py-2.5 px-3 bg-red-500 hover:bg-red-600 text-white font-heading font-bold text-sm sm:text-base rounded-xl shadow transition active:scale-95 flex items-center justify-center gap-2">
+          <span>🔴</span> <span id="buzz-red-label">MERAH MENJAWAB</span>
+        </button>
+        <div class="text-xs font-bold text-slate-400 uppercase">ATAU</div>
+        <button id="buzz-blue-btn" onclick="selectBuzzerTeam('blue')" class="flex-1 py-2.5 px-3 bg-blue-500 hover:bg-blue-600 text-white font-heading font-bold text-sm sm:text-base rounded-xl shadow transition active:scale-95 flex items-center justify-center gap-2">
+          <span>🔵</span> <span id="buzz-blue-label">BIRU MENJAWAB</span>
+        </button>
+      </div>
+
+      <!-- Kotak Pertanyaan -->
+      <div class="text-center py-2 px-4 bg-amber-50 rounded-2xl border-2 border-amber-200">
+        <span class="text-xs font-bold text-slate-400 block mb-0.5">HITUNG HASIL BERIKUT:</span>
+        <h2 id="question-text" class="font-heading font-black text-3xl sm:text-5xl text-slate-900 tracking-wide">
+          28 + 16 = ?
+        </h2>
+      </div>
+
+      <!-- Pesan Feedback Jawaban (Benar / Salah / Lewat) -->
+      <div id="feedback-box" class="min-h-[38px] flex items-center justify-center px-4 py-1.5 rounded-xl text-center font-heading font-bold text-sm sm:text-base transition-all duration-200 invisible">
+        <!-- Diisi secara dinamis -->
+        Jawaban Tepat!
+      </div>
+
+      <!-- 4 Tombol Pilihan Jawaban (A, B, C, D) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3" id="options-grid">
+        <button onclick="handleAnswer('A')" id="btn-opt-A" class="option-btn p-3 sm:p-4 rounded-2xl border-3 border-slate-200 bg-slate-50 hover:bg-amber-100 hover:border-amber-400 text-slate-800 font-heading font-black text-xl sm:text-2xl flex items-center gap-3 shadow-sm active:scale-98 transition">
+          <span class="w-9 h-9 rounded-xl bg-slate-200 text-slate-700 flex items-center justify-center text-base font-black">A</span>
+          <span class="opt-label flex-1 text-center font-extrabold">42</span>
+        </button>
+        <button onclick="handleAnswer('B')" id="btn-opt-B" class="option-btn p-3 sm:p-4 rounded-2xl border-3 border-slate-200 bg-slate-50 hover:bg-amber-100 hover:border-amber-400 text-slate-800 font-heading font-black text-xl sm:text-2xl flex items-center gap-3 shadow-sm active:scale-98 transition">
+          <span class="w-9 h-9 rounded-xl bg-slate-200 text-slate-700 flex items-center justify-center text-base font-black">B</span>
+          <span class="opt-label flex-1 text-center font-extrabold">44</span>
+        </button>
+        <button onclick="handleAnswer('C')" id="btn-opt-C" class="option-btn p-3 sm:p-4 rounded-2xl border-3 border-slate-200 bg-slate-50 hover:bg-amber-100 hover:border-amber-400 text-slate-800 font-heading font-black text-xl sm:text-2xl flex items-center gap-3 shadow-sm active:scale-98 transition">
+          <span class="w-9 h-9 rounded-xl bg-slate-200 text-slate-700 flex items-center justify-center text-base font-black">C</span>
+          <span class="opt-label flex-1 text-center font-extrabold">46</span>
+        </button>
+        <button onclick="handleAnswer('D')" id="btn-opt-D" class="option-btn p-3 sm:p-4 rounded-2xl border-3 border-slate-200 bg-slate-50 hover:bg-amber-100 hover:border-amber-400 text-slate-800 font-heading font-black text-xl sm:text-2xl flex items-center gap-3 shadow-sm active:scale-98 transition">
+          <span class="w-9 h-9 rounded-xl bg-slate-200 text-slate-700 flex items-center justify-center text-base font-black">D</span>
+          <span class="opt-label flex-1 text-center font-extrabold">48</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- ======================================================== -->
+  <!-- 3. HALAMAN HASIL AKHIR (SUMMARY & PRINT)                 -->
+  <!-- ======================================================== -->
+  <section id="screen-result" class="w-full max-w-4xl mx-auto p-4 sm:p-6 hidden flex-col gap-6 my-auto">
+    <!-- Confetti Canvas -->
+    <canvas id="confettiCanvas" class="fixed inset-0 pointer-events-none z-40 w-full h-full"></canvas>
+
+    <div class="bg-white rounded-3xl p-6 sm:p-10 shadow-2xl border-4 border-amber-300 text-center relative print-shadow-none">
+      <!-- Badge Hasil -->
+      <div class="inline-block p-4 rounded-full bg-amber-100 border-2 border-amber-400 text-5xl sm:text-6xl mb-3 shadow">
+        🏆
+      </div>
+      <h2 id="result-winner-title" class="font-heading font-black text-3xl sm:text-5xl text-amber-600">
+        KELOMPOK MERAH MENANG!
+      </h2>
+      <p id="result-winner-subtitle" class="text-slate-600 font-semibold text-base sm:text-lg mt-1">
+        Permainan selesai dengan penuh semangat dan kecerdasan!
+      </p>
+
+      <!-- Pesan Motivasi Edukatif -->
+      <div id="motivation-box" class="my-5 p-4 rounded-2xl bg-gradient-to-r from-amber-50 via-sky-50 to-emerald-50 border-2 border-amber-200 text-slate-700 text-sm sm:text-base font-medium">
+        "Kalian berdua luar biasa! Latihan berhitung membuat pikiran kita semakin tajam dan tangkas."
+      </div>
+
+      <!-- Ringkasan Metrik Kedua Tim -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-left my-6">
+        <!-- Ringkasan Merah -->
+        <div class="p-5 rounded-2xl bg-red-50 border-2 border-red-300 print-break-inside">
+          <div class="flex items-center justify-between mb-3 border-b border-red-200 pb-2">
+            <h3 id="res-name-red" class="font-heading font-black text-xl text-red-700">Garuda Merah</h3>
+            <span class="px-3 py-1 bg-red-600 text-white rounded-xl font-heading font-extrabold text-sm" id="res-score-red">0 Poin</span>
+          </div>
+          <div class="space-y-1.5 text-xs sm:text-sm text-slate-700">
+            <div class="flex justify-between"><span>Jawaban Benar:</span> <strong id="res-correct-red" class="text-emerald-600">0</strong></div>
+            <div class="flex justify-between"><span>Jawaban Salah:</span> <strong id="res-wrong-red" class="text-red-500">0</strong></div>
+            <div class="flex justify-between"><span>Akurasi Berhitung:</span> <strong id="res-acc-red">0%</strong></div>
+          </div>
+        </div>
+
+        <!-- Ringkasan Biru -->
+        <div class="p-5 rounded-2xl bg-blue-50 border-2 border-blue-300 print-break-inside">
+          <div class="flex items-center justify-between mb-3 border-b border-blue-200 pb-2">
+            <h3 id="res-name-blue" class="font-heading font-black text-xl text-blue-700">Rajawali Biru</h3>
+            <span class="px-3 py-1 bg-blue-600 text-white rounded-xl font-heading font-extrabold text-sm" id="res-score-blue">0 Poin</span>
+          </div>
+          <div class="space-y-1.5 text-xs sm:text-sm text-slate-700">
+            <div class="flex justify-between"><span>Jawaban Benar:</span> <strong id="res-correct-blue" class="text-emerald-600">0</strong></div>
+            <div class="flex justify-between"><span>Jawaban Salah:</span> <strong id="res-wrong-blue" class="text-red-500">0</strong></div>
+            <div class="flex justify-between"><span>Akurasi Berhitung:</span> <strong id="res-acc-blue">0%</strong></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Info Tambahan Permainan -->
+      <div class="p-4 rounded-2xl bg-slate-50 border border-slate-200 flex flex-wrap items-center justify-around gap-3 text-xs sm:text-sm text-slate-600 font-bold mb-6">
+        <div>⏳ Durasi: <span id="res-total-time" class="text-slate-800">00:00</span></div>
+        <div>⏭️ Soal Dilewati / Waktu Habis: <span id="res-skipped-count" class="text-amber-600">0</span></div>
+        <div>🚩 Posisi Akhir Tali: <span id="res-final-rope" class="text-slate-800">Netral (0)</span></div>
+      </div>
+
+      <!-- Tombol Aksi Akhir (Disembunyikan saat dicetak) -->
+      <div class="flex flex-wrap items-center justify-center gap-3 no-print">
+        <button onclick="restartSameGame()" class="px-6 py-3.5 bg-emerald-500 hover:bg-emerald-600 text-white font-heading font-extrabold rounded-2xl shadow-lg transition active:scale-95 flex items-center gap-2">
+          <span>🔄</span> MAIN LAGI
+        </button>
+        <button onclick="goToMenuFromGame()" class="px-6 py-3.5 bg-slate-100 hover:bg-slate-200 text-slate-700 font-heading font-bold rounded-2xl border border-slate-300 transition">
+          🏠 KEMBALI KE MENU
+        </button>
+        <button onclick="printResultReport()" class="px-6 py-3.5 bg-sky-500 hover:bg-sky-600 text-white font-heading font-bold rounded-2xl shadow transition active:scale-95 flex items-center gap-2">
+          <span>🖨️</span> CETAK HASIL (PDF)
+        </button>
+      </div>
+
+      <!-- Tabel Lengkap Rekap 50 Soal -->
+      <div class="mt-8 text-left border-t-2 border-slate-200 pt-6">
+        <h4 class="font-heading font-bold text-lg text-slate-800 mb-3 flex items-center gap-2">
+          📋 Rekapitulasi 50 Soal & Jawaban
+        </h4>
+        <div class="overflow-x-auto max-h-96 overflow-y-auto border border-slate-200 rounded-2xl">
+          <table class="w-full text-xs text-left border-collapse">
+            <thead class="bg-slate-100 text-slate-700 sticky top-0 uppercase font-black tracking-wider text-[11px] border-b border-slate-200">
+              <tr>
+                <th class="p-2.5 text-center">No</th>
+                <th class="p-2.5">Soal</th>
+                <th class="p-2.5">Materi</th>
+                <th class="p-2.5 text-center">Penjawab</th>
+                <th class="p-2.5 text-center">Jawaban Dipilih</th>
+                <th class="p-2.5 text-center">Kunci</th>
+                <th class="p-2.5 text-center">Status</th>
+              </tr>
+            </thead>
+            <tbody id="table-recap-body" class="divide-y divide-slate-100">
+              <!-- Baris Soal Diisi secara Dinamis -->
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer Hak Cipta -->
+  <footer class="w-full text-center py-3 text-xs text-slate-500 font-bold no-print">
+    Tarik Tambang Matematika SD • 50 Tantangan Edukasi Interaktif • Berjalan 100% Offline
+  </footer>
+
+
+  <!-- ======================================================== -->
+  <!-- JAVASCRIPT: LOGIKA GAME, AUDIO SYNTH, ANIMASI & 50 SOAL   -->
+  <!-- ======================================================== -->
+  <script>
+    /* =======================================================
+       1. DATA RESMI 50 SOAL MATEMATIKA SESUAI KETENTUAN
+       ======================================================= */
+    const MASTER_QUESTIONS = [
+      // Penjumlahan (1 - 13)
+      { id: 1, type: "Penjumlahan", q: "28 + 16 = ?", options: ["42", "44", "46", "48"], correct: "B" },
+      { id: 2, type: "Penjumlahan", q: "57 + 35 = ?", options: ["82", "88", "92", "102"], correct: "C" },
+      { id: 3, type: "Penjumlahan", q: "125 + 75 = ?", options: ["200", "190", "210", "220"], correct: "A" },
+      { id: 4, type: "Penjumlahan", q: "246 + 138 = ?", options: ["374", "382", "386", "384"], correct: "D" },
+      { id: 5, type: "Penjumlahan", q: "367 + 245 = ?", options: ["602", "612", "622", "632"], correct: "B" },
+      { id: 6, type: "Penjumlahan", q: "480 + 275 = ?", options: ["745", "750", "755", "765"], correct: "C" },
+      { id: 7, type: "Penjumlahan", q: "1.250 + 650 = ?", options: ["1.900", "1.800", "1.950", "2.000"], correct: "A" },
+      { id: 8, type: "Penjumlahan", q: "89 + 76 = ?", options: ["155", "160", "170", "165"], correct: "D" },
+      { id: 9, type: "Penjumlahan", q: "432 + 168 = ?", options: ["590", "600", "610", "620"], correct: "B" },
+      { id: 10, type: "Penjumlahan", q: "705 + 195 = ?", options: ["800", "850", "900", "950"], correct: "C" },
+      { id: 11, type: "Penjumlahan", q: "1.375 + 425 = ?", options: ["1.800", "1.700", "1.850", "1.900"], correct: "A" },
+      { id: 12, type: "Penjumlahan", q: "268 + 357 = ?", options: ["615", "620", "630", "625"], correct: "D" },
+      { id: 13, type: "Penjumlahan", q: "999 + 101 = ?", options: ["1.000", "1.100", "1.200", "1.090"], correct: "B" },
+
+      // Pengurangan (14 - 26)
+      { id: 14, type: "Pengurangan", q: "64 − 29 = ?", options: ["33", "34", "35", "36"], correct: "C" },
+      { id: 15, type: "Pengurangan", q: "100 − 47 = ?", options: ["53", "57", "63", "43"], correct: "A" },
+      { id: 16, type: "Pengurangan", q: "250 − 125 = ?", options: ["115", "120", "130", "125"], correct: "D" },
+      { id: 17, type: "Pengurangan", q: "500 − 268 = ?", options: ["222", "232", "242", "252"], correct: "B" },
+      { id: 18, type: "Pengurangan", q: "720 − 345 = ?", options: ["365", "385", "375", "395"], correct: "C" },
+      { id: 19, type: "Pengurangan", q: "1.000 − 475 = ?", options: ["525", "535", "545", "515"], correct: "A" },
+      { id: 20, type: "Pengurangan", q: "846 − 329 = ?", options: ["507", "527", "537", "517"], correct: "D" },
+      { id: 21, type: "Pengurangan", q: "605 − 178 = ?", options: ["417", "427", "437", "447"], correct: "B" },
+      { id: 22, type: "Pengurangan", q: "900 − 456 = ?", options: ["434", "454", "444", "464"], correct: "C" },
+      { id: 23, type: "Pengurangan", q: "1.500 − 675 = ?", options: ["825", "815", "835", "845"], correct: "A" },
+      { id: 24, type: "Pengurangan", q: "734 − 286 = ?", options: ["438", "458", "468", "448"], correct: "D" },
+      { id: 25, type: "Pengurangan", q: "1.200 − 385 = ?", options: ["805", "815", "825", "835"], correct: "B" },
+      { id: 26, type: "Pengurangan", q: "1.001 − 499 = ?", options: ["492", "512", "502", "522"], correct: "C" },
+
+      // Perkalian (27 - 38)
+      { id: 27, type: "Perkalian", q: "2 × 3 = ?", options: ["5", "6", "8", "9"], correct: "B" },
+      { id: 28, type: "Perkalian", q: "4 × 2 = ?", options: ["6", "10", "12", "8"], correct: "D" },
+      { id: 29, type: "Perkalian", q: "5 × 3 = ?", options: ["15", "12", "18", "20"], correct: "A" },
+      { id: 30, type: "Perkalian", q: "6 × 2 = ?", options: ["10", "14", "12", "16"], correct: "C" },
+      { id: 31, type: "Perkalian", q: "4 × 4 = ?", options: ["12", "16", "18", "20"], correct: "B" },
+      { id: 32, type: "Perkalian", q: "5 × 5 = ?", options: ["20", "15", "30", "25"], correct: "D" },
+      { id: 33, type: "Perkalian", q: "3 × 7 = ?", options: ["21", "18", "24", "27"], correct: "A" },
+      { id: 34, type: "Perkalian", q: "6 × 4 = ?", options: ["20", "28", "24", "30"], correct: "C" },
+      { id: 35, type: "Perkalian", q: "8 × 3 = ?", options: ["21", "24", "27", "32"], correct: "B" },
+      { id: 36, type: "Perkalian", q: "7 × 5 = ?", options: ["30", "40", "45", "35"], correct: "D" },
+      { id: 37, type: "Perkalian", q: "9 × 4 = ?", options: ["36", "32", "40", "45"], correct: "A" },
+      { id: 38, type: "Perkalian", q: "10 × 6 = ?", options: ["50", "70", "60", "65"], correct: "C" },
+
+      // Pembagian (39 - 50)
+      { id: 39, type: "Pembagian", q: "6 ÷ 2 = ?", options: ["2", "3", "4", "5"], correct: "B" },
+      { id: 40, type: "Pembagian", q: "8 ÷ 4 = ?", options: ["1", "3", "4", "2"], correct: "D" },
+      { id: 41, type: "Pembagian", q: "10 ÷ 2 = ?", options: ["5", "2", "4", "6"], correct: "A" },
+      { id: 42, type: "Pembagian", q: "12 ÷ 3 = ?", options: ["3", "6", "4", "5"], correct: "C" },
+      { id: 43, type: "Pembagian", q: "15 ÷ 5 = ?", options: ["2", "3", "4", "5"], correct: "B" },
+      { id: 44, type: "Pembagian", q: "16 ÷ 4 = ?", options: ["2", "6", "8", "4"], correct: "D" },
+      { id: 45, type: "Pembagian", q: "18 ÷ 3 = ?", options: ["6", "5", "7", "9"], correct: "A" },
+      { id: 46, type: "Pembagian", q: "20 ÷ 5 = ?", options: ["2", "5", "4", "6"], correct: "C" },
+      { id: 47, type: "Pembagian", q: "24 ÷ 4 = ?", options: ["4", "6", "8", "5"], correct: "B" },
+      { id: 48, type: "Pembagian", q: "30 ÷ 5 = ?", options: ["3", "5", "8", "6"], correct: "D" },
+      { id: 49, type: "Pembagian", q: "35 ÷ 7 = ?", options: ["5", "7", "4", "6"], correct: "A" },
+      { id: 50, type: "Pembagian", q: "40 ÷ 8 = ?", options: ["4", "6", "5", "8"], correct: "C" }
+    ];
+
+    /* =======================================================
+       2. SOUND SYNTHESIZER BERBASIS WEB AUDIO API (OFFLINE)
+       ======================================================= */
+    class SoundFX {
+      constructor() {
+        this.ctx = null;
+        this.enabled = true;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          if (AudioContext) {
+            this.ctx = new AudioContext();
+          }
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      playTone(freq, type, duration, gainStart = 0.2, gainEnd = 0.001) {
+        if (!this.enabled) return;
+        this.init();
+        if (!this.ctx) return;
+        try {
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = type;
+          osc.frequency.setValueAtTime(freq, this.ctx.currentTime);
+          gain.gain.setValueAtTime(gainStart, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(gainEnd, this.ctx.currentTime + duration);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + duration);
+        } catch (e) {
+          console.error("Audio error:", e);
+        }
+      }
+      correct() {
+        if (!this.enabled) return;
+        this.init();
+        const now = this.ctx ? this.ctx.currentTime : 0;
+        const notes = [523.25, 659.25, 783.99, 1046.50]; // Melodi C Mayor C5-E5-G5-C6
+        notes.forEach((freq, idx) => {
+          setTimeout(() => {
+            this.playTone(freq, 'triangle', 0.25, 0.25, 0.01);
+          }, idx * 75);
+        });
+      }
+      wrong() {
+        this.playTone(180, 'sawtooth', 0.35, 0.3, 0.01);
+        setTimeout(() => this.playTone(130, 'sawtooth', 0.4, 0.3, 0.01), 120);
+      }
+      tick() {
+        this.playTone(850, 'sine', 0.06, 0.15, 0.01);
+      }
+      timeout() {
+        this.playTone(220, 'square', 0.5, 0.25, 0.01);
+      }
+      ropePull() {
+        this.playTone(320, 'triangle', 0.2, 0.2, 0.02);
+      }
+      win() {
+        if (!this.enabled) return;
+        const fanfare = [523.25, 523.25, 523.25, 659.25, 783.99, 1046.5];
+        fanfare.forEach((n, i) => {
+          setTimeout(() => this.playTone(n, 'triangle', 0.35, 0.3, 0.01), i * 140);
+        });
+      }
+    }
+    const sfx = new SoundFX();
+
+    /* =======================================================
+       3. STATE MANAJEMEN PERMAINAN
+       ======================================================= */
+    const MAX_STEPS = 15; // 15 langkah ke kiri (Merah) atau kanan (Biru)
+    const TOTAL_QUESTIONS = 50;
+
+    let gameState = {
+      teamRedName: "Garuda Merah",
+      teamBlueName: "Rajawali Biru",
+      mode: "turn", // "turn" (bergiliran) atau "rebutan"
+      difficulty: "easy", // "easy" (terurut) atau "mixed" (acak)
+      questions: [],
+      currentIndex: 0,
+      ropeStep: 0, // Posisi tali: -15 (kemenangan merah) s/d +15 (kemenangan biru)
+      scoreRed: 0,
+      scoreBlue: 0,
+      stats: {
+        redCorrect: 0,
+        redWrong: 0,
+        blueCorrect: 0,
+        blueWrong: 0,
+        skipped: 0
+      },
+      history: [], // Riwayat lengkap 50 soal untuk rekapitulasi cetak
+      timer: 60,
+      timerInterval: null,
+      isPaused: false,
+      isProcessingAnswer: false,
+      rebutanActiveTeam: null, // Siapa yang berhak menjawab pada mode rebutan
+      earlyWinTriggered: false,
+      startTime: null,
+      totalDurationSeconds: 0
+    };
+
+    /* =======================================================
+       4. ANIMASI CANVAS LAPANGAN TARIK TAMBANG
+       ======================================================= */
+    const canvas = document.getElementById("arenaCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Properti animasi visual
+    let animOffset = 0;
+    let targetOffset = 0;
+    let particles = [];
+    let isPullingRed = false;
+    let isPullingBlue = false;
+    let pullAnimTimer = 0;
+
+    function resizeCanvas() {
+      // Menjaga aspect ratio di canvas
+      const rect = canvas.getBoundingClientRect();
+      // Internal coordinate tetap 800x230
+    }
+    window.addEventListener("resize", resizeCanvas);
+
+    function createDustParticles(x, y, color) {
+      for (let i = 0; i < 10; i++) {
+        particles.push({
+          x: x + (Math.random() * 20 - 10),
+          y: y + (Math.random() * 10 - 5),
+          vx: (Math.random() * 3 - 1.5),
+          vy: -(Math.random() * 2 + 1),
+          size: Math.random() * 4 + 2,
+          color: color,
+          alpha: 1,
+          life: 30
+        });
+      }
+    }
+
+    function createStarParticles(x, y) {
+      for (let i = 0; i < 12; i++) {
+        const angle = Math.random() * Math.PI * 2;
+        const speed = Math.random() * 3 + 1.5;
+        particles.push({
+          x: x,
+          y: y,
+          vx: Math.cos(angle) * speed,
+          vy: Math.sin(angle) * speed,
+          size: Math.random() * 5 + 3,
+          color: '#FBBF24',
+          alpha: 1,
+          life: 35,
+          isStar: true
+        });
+      }
+    }
+
+    // Fungsi Render Loop
+    function renderArena() {
+      // Lerp tali menuju targetOffset
+      animOffset += (targetOffset - animOffset) * 0.12;
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+      const W = canvas.width;
+      const H = canvas.height;
+      const centerY = H - 55;
+      const centerX = W / 2 + animOffset;
+
+      // 1. Gambar Langit Lapangan & Awan
+      ctx.fillStyle = '#E0F2FE';
+      ctx.fillRect(0, 0, W, H);
+
+      // Gambar Rumput & Garis Lapangan
+      const groundY = H - 70;
+      ctx.fillStyle = '#10B981'; // Rumput segar
+      ctx.fillRect(0, groundY, W, H - groundY);
+
+      // Tekstur rumput bawah
+      ctx.fillStyle = '#059669';
+      ctx.fillRect(0, groundY + 15, W, H - (groundY + 15));
+
+      // Garis Batas Lapangan Sekolah (Putih Kapur)
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+      ctx.lineWidth = 4;
+      ctx.setLineDash([8, 6]);
+
+      // Titik Tengah Tetap Lapangan
+      ctx.beginPath();
+      ctx.moveTo(W / 2, groundY);
+      ctx.lineTo(W / 2, H);
+      ctx.stroke();
+
+      // Garis Batas Kemenangan Merah (Kiri: -15 langkah) & Biru (Kanan: +15 langkah)
+      const stepPixelWidth = 14; // Jarak visual tiap langkah
+      const winLimitX_Left = W / 2 - (MAX_STEPS * stepPixelWidth);
+      const winLimitX_Right = W / 2 + (MAX_STEPS * stepPixelWidth);
+
+      ctx.setLineDash([]);
+      ctx.lineWidth = 3;
+
+      // Batas Merah
+      ctx.strokeStyle = '#EF4444';
+      ctx.beginPath();
+      ctx.moveTo(winLimitX_Left, groundY - 15);
+      ctx.lineTo(winLimitX_Left, H);
+      ctx.stroke();
+
+      // Batas Biru
+      ctx.strokeStyle = '#3B82F6';
+      ctx.beginPath();
+      ctx.moveTo(winLimitX_Right, groundY - 15);
+      ctx.lineTo(winLimitX_Right, H);
+      ctx.stroke();
+
+      // Indikator Garis Skala Ukur di Tanah
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.lineWidth = 1.5;
+      for (let s = -MAX_STEPS; s <= MAX_STEPS; s++) {
+        const markX = W / 2 + (s * stepPixelWidth);
+        const markH = (s % 5 === 0) ? 10 : 5;
+        ctx.beginPath();
+        ctx.moveTo(markX, H - markH);
+        ctx.lineTo(markX, H);
+        ctx.stroke();
+      }
+
+      // 2. Gambar Karakter Tim Merah (Kiri)
+      // 3 Murid dengan pose menarik tali
+      const redPullAngle = isPullingRed ? -0.35 : -0.15;
+      drawKidGroup(centerX - 120, centerY + 8, 'red', redPullAngle, isPullingRed);
+
+      // 3. Gambar Karakter Tim Biru (Kanan)
+      // 3 Murid dengan pose menarik tali
+      const bluePullAngle = isPullingBlue ? 0.35 : 0.15;
+      drawKidGroup(centerX + 120, centerY + 8, 'blue', bluePullAngle, isPullingBlue);
+
+      // 4. Gambar Tali Tambang Utama
+      ctx.save();
+      ctx.strokeStyle = '#854D0E'; // Cokelat tambang
+      ctx.lineWidth = 8;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      // Sedikit lengkungan tegangan tali
+      ctx.moveTo(centerX - 240, centerY - 8);
+      ctx.quadraticCurveTo(centerX, centerY - (isPullingRed || isPullingBlue ? 12 : 6), centerX + 240, centerY - 8);
+      ctx.stroke();
+
+      // Lilitan Serat Tali (Detail spiral)
+      ctx.strokeStyle = '#CA8A04';
+      ctx.lineWidth = 2;
+      ctx.setLineDash([4, 4]);
+      ctx.stroke();
+      ctx.restore();
+
+      // 5. Gambar Pita / Bendera Merah di Tengah Tali
+      ctx.save();
+      ctx.translate(centerX, centerY - 10);
+      // Ikatan Pita
+      ctx.fillStyle = '#DC2626';
+      ctx.beginPath();
+      ctx.arc(0, 0, 7, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 2;
+      ctx.stroke();
+
+      // Kain pita menjuntai ke bawah
+      ctx.fillStyle = '#EF4444';
+      ctx.beginPath();
+      ctx.moveTo(-6, 2);
+      ctx.lineTo(6, 2);
+      ctx.lineTo(10, 26);
+      ctx.lineTo(0, 18);
+      ctx.lineTo(-10, 26);
+      ctx.closePath();
+      ctx.fill();
+      ctx.stroke();
+      ctx.restore();
+
+      // 6. Gambar Partikel (Debu & Bintang Kemenangan)
+      for (let i = particles.length - 1; i >= 0; i--) {
+        const p = particles[i];
+        p.x += p.vx;
+        p.y += p.vy;
+        p.alpha -= 0.03;
+        p.life--;
+
+        ctx.save();
+        ctx.globalAlpha = Math.max(0, p.alpha);
+        ctx.fillStyle = p.color;
+        if (p.isStar) {
+          // Bintang sederhana
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        } else {
+          // Gumpalan debu
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+          ctx.fill();
+        }
+        ctx.restore();
+
+        if (p.life <= 0 || p.alpha <= 0) {
+          particles.splice(i, 1);
+        }
+      }
+
+      // Hitung mundurnya durasi animasi tarikan
+      if (pullAnimTimer > 0) {
+        pullAnimTimer--;
+        if (pullAnimTimer === 0) {
+          isPullingRed = false;
+          isPullingBlue = false;
+        }
+      }
+
+      requestAnimationFrame(renderArena);
+    }
+
+    // Fungsi Menggambar Karakter Kartun Anak SD
+    function drawKidGroup(baseX, baseY, team, leanAngle, isStraining) {
+      // Gambar 3 anak berjejer menarik tambang
+      const offsets = team === 'red' ? [-60, -30, 0] : [0, 30, 60];
+      offsets.forEach((off, i) => {
+        drawKid(baseX + off, baseY, team, leanAngle + (i * 0.03 * (team === 'red' ? -1 : 1)), isStraining, i);
+      });
+    }
+
+    function drawKid(x, y, team, angle, isStraining, index) {
+      ctx.save();
+      ctx.translate(x, y);
+      ctx.rotate(angle);
+
+      const shirtColor = team === 'red' ? '#EF4444' : '#3B82F6';
+      const pantsColor = team === 'red' ? '#991B1B' : '#1E3A8A';
+      const skinColor = '#FDE68A';
+
+      // Kaki di tanah menahan tarikan
+      ctx.fillStyle = pantsColor;
+      ctx.fillRect(-8, -25, 7, 24);
+      ctx.fillRect(2, -25, 7, 24);
+
+      // Sepatu
+      ctx.fillStyle = '#1F2937';
+      ctx.beginPath();
+      ctx.ellipse(-5, 0, 7, 4, 0, 0, Math.PI * 2);
+      ctx.ellipse(5, 0, 7, 4, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Badan / Kaos
+      ctx.fillStyle = shirtColor;
+      ctx.beginPath();
+      ctx.roundRect(-12, -55, 24, 32, [6]);
+      ctx.fill();
+
+      // Kepala
+      ctx.fillStyle = skinColor;
+      ctx.beginPath();
+      ctx.arc(0, -68, 12, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Rambut Anak
+      ctx.fillStyle = index % 2 === 0 ? '#451A03' : '#1C1917';
+      ctx.beginPath();
+      ctx.arc(0, -73, 12, Math.PI, Math.PI * 2);
+      ctx.fill();
+
+      // Wajah Senang / Bersemangat
+      ctx.fillStyle = '#1F2937';
+      // Mata
+      ctx.beginPath();
+      if (isStraining) {
+        // Mata sipit berjuang
+        ctx.arc(-4, -69, 1.5, 0, Math.PI * 2);
+        ctx.arc(4, -69, 1.5, 0, Math.PI * 2);
+      } else {
+        ctx.arc(-4, -68, 2, 0, Math.PI * 2);
+        ctx.arc(4, -68, 2, 0, Math.PI * 2);
+      }
+      ctx.fill();
+
+      // Mulut
+      ctx.strokeStyle = '#DC2626';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.arc(0, -63, 3, 0, Math.PI);
+      ctx.stroke();
+
+      // Tangan Memegang Tali
+      ctx.fillStyle = skinColor;
+      ctx.beginPath();
+      ctx.arc(team === 'red' ? 10 : -10, -38, 5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Keringat / Tetesan Semangat saat menarik
+      if (isStraining && index === 1) {
+        ctx.fillStyle = '#38BDF8';
+        ctx.beginPath();
+        ctx.arc(14, -75, 3, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    /* =======================================================
+       5. SISTEM TIMER HITUNG MUNDUR 60 DETIK
+       ======================================================= */
+    function startTimer() {
+      stopTimer();
+      gameState.timer = 60;
+      updateTimerDisplay();
+
+      gameState.timerInterval = setInterval(() => {
+        if (gameState.isPaused) return;
+
+        gameState.timer--;
+        updateTimerDisplay();
+
+        // Bunyi detak jam peringatan 5 detik terakhir
+        if (gameState.timer <= 5 && gameState.timer > 0) {
+          sfx.tick();
+        }
+
+        // Waktu habis
+        if (gameState.timer <= 0) {
+          handleTimeExpired();
+        }
+      }, 1000);
+    }
+
+    function stopTimer() {
+      if (gameState.timerInterval) {
+        clearInterval(gameState.timerInterval);
+        gameState.timerInterval = null;
+      }
+    }
+
+    function updateTimerDisplay() {
+      const timerBox = document.getElementById("timer-box");
+      const timerText = document.getElementById("timer-text");
+      if (!timerBox || !timerText) return;
+
+      timerText.textContent = `${gameState.timer}s`;
+
+      // Perubahan warna cerdas:
+      // Waktu aman (>15s): Hijau
+      // Waktu waspada (6-15s): Oranye
+      // Waktu genting (<=5s): Merah dengan getaran animasi
+      if (gameState.timer > 15) {
+        timerBox.className = "flex items-center gap-2 px-3.5 py-1.5 bg-emerald-100 text-emerald-800 border-2 border-emerald-400 rounded-2xl font-mono font-black text-lg sm:text-xl shadow-inner transition-colors duration-300";
+      } else if (gameState.timer > 5) {
+        timerBox.className = "flex items-center gap-2 px-3.5 py-1.5 bg-amber-100 text-amber-800 border-2 border-amber-400 rounded-2xl font-mono font-black text-lg sm:text-xl shadow-inner transition-colors duration-300";
+      } else {
+        timerBox.className = "flex items-center gap-2 px-3.5 py-1.5 bg-red-100 text-red-700 border-2 border-red-500 rounded-2xl font-mono font-black text-lg sm:text-xl shadow-inner animate-pulse-fast";
+      }
+    }
+
+    function handleTimeExpired() {
+      stopTimer();
+      if (gameState.isProcessingAnswer) return;
+      gameState.isProcessingAnswer = true;
+
+      sfx.timeout();
+
+      const currentQ = gameState.questions[gameState.currentIndex];
+      const activeTeam = getActiveTeamForCurrentQuestion();
+
+      // Catat ke statistik & riwayat
+      gameState.stats.skipped++;
+      gameState.history.push({
+        index: gameState.currentIndex + 1,
+        question: currentQ.q,
+        type: currentQ.type,
+        team: activeTeam,
+        chosen: "-",
+        correct: currentQ.correct,
+        status: "LEWAT"
+      });
+
+      // Tampilkan feedback waktu habis
+      showFeedback("⏰ WAKTU HABIS! SOAL DILEWATI", "bg-amber-100 text-amber-800 border border-amber-300");
+
+      // Tunjukkan kunci jawaban dengan warna hijau lembut
+      highlightOptionsFeedback(null, currentQ.correct);
+
+      // Jeda 2 detik lalu lanjut ke soal berikutnya
+      setTimeout(() => {
+        advanceToNextQuestion();
+      }, 2000);
+    }
+
+    /* =======================================================
+       6. ALUR LOGIKA SOAL DAN PERMAINAN
+       ======================================================= */
+    function getActiveTeamForCurrentQuestion() {
+      if (gameState.mode === 'turn') {
+        // Soal ganjil (indeks 0, 2, 4...) -> Merah
+        // Soal genap (indeks 1, 3, 5...) -> Biru
+        return (gameState.currentIndex % 2 === 0) ? 'red' : 'blue';
+      } else {
+        // Mode rebutan ditentukan oleh operator
+        return gameState.rebutanActiveTeam;
+      }
+    }
+
+    function loadQuestion() {
+      if (gameState.currentIndex >= TOTAL_QUESTIONS) {
+        finishGame();
+        return;
+      }
+
+      gameState.isProcessingAnswer = false;
+      const qData = gameState.questions[gameState.currentIndex];
+
+      // Update Label Header
+      document.getElementById("label-question-number").textContent = `SOAL ${gameState.currentIndex + 1} DARI ${TOTAL_QUESTIONS}`;
+      document.getElementById("label-question-category").textContent = qData.type;
+      document.getElementById("question-text").textContent = qData.q;
+
+      // Update Progress Bar
+      const progressPercent = ((gameState.currentIndex + 1) / TOTAL_QUESTIONS) * 100;
+      document.getElementById("progress-bar-50").style.width = `${progressPercent}%`;
+
+      // Update Pilihan Jawaban
+      const optKeys = ["A", "B", "C", "D"];
+      optKeys.forEach((key, idx) => {
+        const btn = document.getElementById(`btn-opt-${key}`);
+        btn.querySelector(".opt-label").textContent = qData.options[idx];
+        btn.className = "option-btn p-3 sm:p-4 rounded-2xl border-2 border-slate-200 bg-slate-50 hover:bg-amber-100 hover:border-amber-400 text-slate-800 font-heading font-black text-xl sm:text-2xl flex items-center gap-3 shadow-sm active:scale-98 transition";
+        btn.disabled = false;
+      });
+
+      // Sembunyikan feedback
+      hideFeedback();
+
+      // Penanganan Mode Permainan (Bergiliran vs Rebutan)
+      const turnBanner = document.getElementById("turn-banner");
+      const buzzerContainer = document.getElementById("buzzer-container");
+
+      if (gameState.mode === 'turn') {
+        buzzerContainer.classList.add("hidden");
+        const activeTeam = getActiveTeamForCurrentQuestion();
+        if (activeTeam === 'red') {
+          turnBanner.textContent = `🔴 GILIRAN: ${gameState.teamRedName.toUpperCase()}`;
+          turnBanner.className = "w-full py-1.5 px-4 mb-2 text-center font-heading font-extrabold text-sm sm:text-base rounded-xl transition-all duration-300 bg-red-100 text-red-800 border border-red-300 shadow-sm";
+          highlightTeamBadge('red');
+        } else {
+          turnBanner.textContent = `🔵 GILIRAN: ${gameState.teamBlueName.toUpperCase()}`;
+          turnBanner.className = "w-full py-1.5 px-4 mb-2 text-center font-heading font-extrabold text-sm sm:text-base rounded-xl transition-all duration-300 bg-blue-100 text-blue-800 border border-blue-300 shadow-sm";
+          highlightTeamBadge('blue');
+        }
+      } else {
+        // Mode Rebutan
+        buzzerContainer.classList.remove("hidden");
+        gameState.rebutanActiveTeam = null;
+        turnBanner.textContent = `📢 MODE REBUTAN: GURU/OPERATOR MEMILIH KELOMPOK PENJAWAB`;
+        turnBanner.className = "w-full py-1.5 px-4 mb-2 text-center font-heading font-extrabold text-xs sm:text-sm rounded-xl transition-all duration-300 bg-amber-100 text-amber-900 border border-amber-300 shadow-sm";
+        highlightTeamBadge(null);
+        // Nonaktifkan opsi sampai operator menekan kelompok mana yang menjawab
+        setOptionsEnabled(false);
+      }
+
+      // Mulai Timer 60 Detik
+      startTimer();
+    }
+
+    function selectBuzzerTeam(team) {
+      if (gameState.isProcessingAnswer || gameState.isPaused) return;
+
+      gameState.rebutanActiveTeam = team;
+      setOptionsEnabled(true);
+      sfx.playTone(600, 'sine', 0.15, 0.2);
+
+      const turnBanner = document.getElementById("turn-banner");
+      if (team === 'red') {
+        turnBanner.textContent = `🔴 ${gameState.teamRedName.toUpperCase()} DIBERIKAN HAK MENJAWAB!`;
+        turnBanner.className = "w-full py-1.5 px-4 mb-2 text-center font-heading font-extrabold text-sm sm:text-base rounded-xl bg-red-100 text-red-800 border border-red-300 animate-pulse";
+        highlightTeamBadge('red');
+      } else {
+        turnBanner.textContent = `🔵 ${gameState.teamBlueName.toUpperCase()} DIBERIKAN HAK MENJAWAB!`;
+        turnBanner.className = "w-full py-1.5 px-4 mb-2 text-center font-heading font-extrabold text-sm sm:text-base rounded-xl bg-blue-100 text-blue-800 border border-blue-300 animate-pulse";
+        highlightTeamBadge('blue');
+      }
+    }
+
+    function setOptionsEnabled(enabled) {
+      const optKeys = ["A", "B", "C", "D"];
+      optKeys.forEach(k => {
+        const btn = document.getElementById(`btn-opt-${k}`);
+        btn.disabled = !enabled;
+        if (!enabled) {
+          btn.classList.add("opacity-60", "cursor-not-allowed");
+        } else {
+          btn.classList.remove("opacity-60", "cursor-not-allowed");
+        }
+      });
+    }
+
+    function highlightTeamBadge(team) {
+      const redBadge = document.getElementById("badge-team-red");
+      const blueBadge = document.getElementById("badge-team-blue");
+      if (team === 'red') {
+        redBadge.classList.add("ring-4", "ring-red-400", "bg-red-100");
+        blueBadge.classList.remove("ring-4", "ring-blue-400", "bg-blue-100");
+      } else if (team === 'blue') {
+        blueBadge.classList.add("ring-4", "ring-blue-400", "bg-blue-100");
+        redBadge.classList.remove("ring-4", "ring-red-400", "bg-red-100");
+      } else {
+        redBadge.classList.remove("ring-4", "ring-red-400", "bg-red-100");
+        blueBadge.classList.remove("ring-4", "ring-blue-400", "bg-blue-100");
+      }
+    }
+
+    function handleAnswer(chosenOption) {
+      // Cegah klik ganda / proses berulang
+      if (gameState.isProcessingAnswer || gameState.isPaused) return;
+
+      const activeTeam = getActiveTeamForCurrentQuestion();
+      if (!activeTeam) {
+        showFeedback("PILIH KELOMPOK PENJAWAB TERLEBIH DAHULU!", "bg-amber-100 text-amber-800 border border-amber-300");
+        return;
+      }
+
+      gameState.isProcessingAnswer = true;
+      stopTimer();
+
+      const currentQ = gameState.questions[gameState.currentIndex];
+      const isCorrect = (chosenOption === currentQ.correct);
+
+      // Kunci semua tombol jawaban
+      setOptionsEnabled(false);
+
+      if (isCorrect) {
+        // 1. Jawaban Benar
+        sfx.correct();
+        sfx.ropePull();
+
+        // Tambah Skor +10
+        if (activeTeam === 'red') {
+          gameState.scoreRed += 10;
+          gameState.stats.redCorrect++;
+          gameState.ropeStep -= 1; // Tarik ke kiri (arah negatif)
+          isPullingRed = true;
+          pullAnimTimer = 40;
+          createDustParticles(canvas.width / 2 + targetOffset - 120, canvas.height - 60, '#FCA5A5');
+          createStarParticles(canvas.width / 2 + targetOffset - 60, canvas.height - 100);
+        } else {
+          gameState.scoreBlue += 10;
+          gameState.stats.blueCorrect++;
+          gameState.ropeStep += 1; // Tarik ke kanan (arah positif)
+          isPullingBlue = true;
+          pullAnimTimer = 40;
+          createDustParticles(canvas.width / 2 + targetOffset + 120, canvas.height - 60, '#93C5FD');
+          createStarParticles(canvas.width / 2 + targetOffset + 60, canvas.height - 100);
+        }
+
+        // Perbarui target offset tali untuk animasi smooth
+        const stepPixelWidth = 14;
+        targetOffset = gameState.ropeStep * stepPixelWidth;
+
+        updateScoresDisplay();
+        updateRopeStatusText();
+
+        showFeedback("🎉 BENAR! HEBAT! (+10 POIN)", "bg-emerald-100 text-emerald-800 border-2 border-emerald-400 shadow-sm");
+        highlightOptionsFeedback(chosenOption, currentQ.correct);
+
+        // Catat ke riwayat
+        gameState.history.push({
+          index: gameState.currentIndex + 1,
+          question: currentQ.q,
+          type: currentQ.type,
+          team: activeTeam,
+          chosen: chosenOption,
+          correct: currentQ.correct,
+          status: "BENAR"
+        });
+
+        // Cek Batas Kemenangan 15 Langkah
+        if (Math.abs(gameState.ropeStep) >= MAX_STEPS && !gameState.earlyWinTriggered) {
+          setTimeout(() => {
+            triggerEarlyWinModal(activeTeam);
+          }, 1200);
+          return;
+        }
+
+      } else {
+        // 2. Jawaban Salah
+        sfx.wrong();
+
+        if (activeTeam === 'red') {
+          gameState.stats.redWrong++;
+        } else {
+          gameState.stats.blueWrong++;
+        }
+
+        showFeedback("❌ JAWABAN BELUM TEPAT!", "bg-rose-100 text-rose-800 border-2 border-rose-400 shadow-sm");
+        highlightOptionsFeedback(chosenOption, currentQ.correct);
+
+        // Catat ke riwayat
+        gameState.history.push({
+          index: gameState.currentIndex + 1,
+          question: currentQ.q,
+          type: currentQ.type,
+          team: activeTeam,
+          chosen: chosenOption,
+          correct: currentQ.correct,
+          status: "SALAH"
+        });
+      }
+
+      // Jeda singkat sebelum soal berikutnya
+      setTimeout(() => {
+        advanceToNextQuestion();
+      }, 1800);
+    }
+
+    function highlightOptionsFeedback(chosen, correct) {
+      const optKeys = ["A", "B", "C", "D"];
+      optKeys.forEach(k => {
+        const btn = document.getElementById(`btn-opt-${k}`);
+        if (k === correct) {
+          // Kunci jawaban disorot hijau
+          btn.className = "option-btn p-3 sm:p-4 rounded-2xl border-3 border-emerald-500 bg-emerald-100 text-emerald-900 font-heading font-black text-xl sm:text-2xl flex items-center gap-3 shadow-md";
+        } else if (k === chosen) {
+          // Pilihan salah disorot merah
+          btn.className = "option-btn p-3 sm:p-4 rounded-2xl border-3 border-rose-500 bg-rose-100 text-rose-900 font-heading font-black text-xl sm:text-2xl flex items-center gap-3 shadow-md";
+        } else {
+          btn.className = "option-btn p-3 sm:p-4 rounded-2xl border-2 border-slate-200 bg-slate-50 opacity-40 text-slate-500 font-heading font-black text-xl sm:text-2xl flex items-center gap-3";
+        }
+      });
+    }
+
+    function advanceToNextQuestion() {
+      gameState.currentIndex++;
+      if (gameState.currentIndex < TOTAL_QUESTIONS) {
+        loadQuestion();
+      } else {
+        finishGame();
+      }
+    }
+
+    function updateScoresDisplay() {
+      document.getElementById("score-red").textContent = gameState.scoreRed;
+      document.getElementById("score-blue").textContent = gameState.scoreBlue;
+    }
+
+    function updateRopeStatusText() {
+      const statusEl = document.getElementById("rope-status-text");
+      const steps = Math.abs(gameState.ropeStep);
+      if (gameState.ropeStep === 0) {
+        statusEl.textContent = "Posisi Tali: Netral di Titik Tengah (0 Langkah)";
+        statusEl.className = "text-xs font-extrabold text-slate-700 bg-slate-100 px-3 py-0.5 rounded-full border border-slate-300";
+      } else if (gameState.ropeStep < 0) {
+        statusEl.textContent = `Posisi Tali: Unggul ${gameState.teamRedName} (+${steps} Langkah ke Kiri)`;
+        statusEl.className = "text-xs font-extrabold text-red-700 bg-red-100 px-3 py-0.5 rounded-full border border-red-300";
+      } else {
+        statusEl.textContent = `Posisi Tali: Unggul ${gameState.teamBlueName} (+${steps} Langkah ke Kanan)`;
+        statusEl.className = "text-xs font-extrabold text-blue-700 bg-blue-100 px-3 py-0.5 rounded-full border border-blue-300";
+      }
+    }
+
+    function showFeedback(msg, classes) {
+      const fb = document.getElementById("feedback-box");
+      fb.textContent = msg;
+      fb.className = `min-h-[38px] flex items-center justify-center px-4 py-1.5 rounded-xl text-center font-heading font-bold text-sm sm:text-base transition-all duration-200 visible ${classes}`;
+    }
+
+    function hideFeedback() {
+      const fb = document.getElementById("feedback-box");
+      fb.className = "min-h-[38px] flex items-center justify-center px-4 py-1.5 rounded-xl text-center font-heading font-bold text-sm sm:text-base transition-all duration-200 invisible";
+    }
+
+    /* =======================================================
+       7. KEMENANGAN DINI (15 LANGKAH)
+       ======================================================= */
+    function triggerEarlyWinModal(team) {
+      gameState.earlyWinTriggered = true;
+      sfx.win();
+
+      const teamName = (team === 'red') ? gameState.teamRedName : gameState.teamBlueName;
+      document.getElementById("early-win-title").textContent = `🎉 ${teamName} Menang Tarik Tambang!`;
+      document.getElementById("early-win-desc").textContent = `Luar biasa! ${teamName} telah berhasil menarik tali sejauh 15 langkah penuh menuju garis kemenangan!`;
+
+      openModal("modal-early-win");
+    }
+
+    function finishGameEarly() {
+      closeModal("modal-early-win");
+      finishGame();
+    }
+
+    function continueAsPractice() {
+      closeModal("modal-early-win");
+      // Batasi posisi tali tetap di batas untuk visual
+      advanceToNextQuestion();
+    }
+
+    /* =======================================================
+       8. JEDA, RESUME, DAN RESTART
+       ======================================================= */
+    function pauseGame() {
+      if (gameState.isProcessingAnswer) return;
+      gameState.isPaused = true;
+      openModal("modal-pause");
+    }
+
+    function resumeGame() {
+      gameState.isPaused = false;
+      closeModal("modal-pause");
+    }
+
+    function openRestartConfirmModal() {
+      openModal("modal-confirm-restart");
+    }
+
+    function confirmRestartGame() {
+      closeModal("modal-confirm-restart");
+      closeModal("modal-pause");
+      startGame();
+    }
+
+    function goToMenuFromGame() {
+      stopTimer();
+      closeModal("modal-pause");
+      closeModal("modal-confirm-restart");
+      closeModal("modal-early-win");
+      stopConfetti();
+
+      document.getElementById("screen-game").classList.add("hidden");
+      document.getElementById("screen-result").classList.add("hidden");
+      document.getElementById("screen-menu").classList.remove("hidden");
+    }
+
+    /* =======================================================
+       9. HALAMAN HASIL AKHIR & CETAK PDF
+       ======================================================= */
+    function finishGame() {
+      stopTimer();
+      sfx.win();
+
+      // Hitung total durasi
+      const endTime = new Date();
+      if (gameState.startTime) {
+        gameState.totalDurationSeconds = Math.round((endTime - gameState.startTime) / 1000);
+      }
+
+      // Tampilkan Screen Result
+      document.getElementById("screen-game").classList.add("hidden");
+      document.getElementById("screen-result").classList.remove("hidden");
+
+      // Mulai Konfeti
+      startConfetti();
+
+      // Hitung Pemenang:
+      // 1. Berdasarkan posisi akhir tali jika ada selisih langkah
+      // 2. Jika tali di tengah (0), gunakan skor
+      // 3. Jika skor sama, seri!
+      let winnerText = "";
+      let winnerSubtitle = "";
+      let winnerColor = "text-amber-600";
+
+      if (gameState.ropeStep < 0) {
+        winnerText = `🏆 ${gameState.teamRedName.toUpperCase()} JUARA!`;
+        winnerSubtitle = `${gameState.teamRedName} berhasil menarik tali ${Math.abs(gameState.ropeStep)} langkah ke arahnya!`;
+        winnerColor = "text-red-600";
+      } else if (gameState.ropeStep > 0) {
+        winnerText = `🏆 ${gameState.teamBlueName.toUpperCase()} JUARA!`;
+        winnerSubtitle = `${gameState.teamBlueName} berhasil menarik tali ${gameState.ropeStep} langkah ke arahnya!`;
+        winnerColor = "text-blue-600";
+      } else {
+        // Tali tepat di tengah
+        if (gameState.scoreRed > gameState.scoreBlue) {
+          winnerText = `🏆 ${gameState.teamRedName.toUpperCase()} MENANG POIN!`;
+          winnerSubtitle = `Posisi tali seimbang, kemenangan diraih melalui keunggulan skor (${gameState.scoreRed} vs ${gameState.scoreBlue}).`;
+          winnerColor = "text-red-600";
+        } else if (gameState.scoreBlue > gameState.scoreRed) {
+          winnerText = `🏆 ${gameState.teamBlueName.toUpperCase()} MENANG POIN!`;
+          winnerSubtitle = `Posisi tali seimbang, kemenangan diraih melalui keunggulan skor (${gameState.scoreBlue} vs ${gameState.scoreRed}).`;
+          winnerColor = "text-blue-600";
+        } else {
+          winnerText = `🤝 PERTANDINGAN BERAKHIR SERI!`;
+          winnerSubtitle = `Kedua kelompok sama-sama tangguh dengan kekuatan dan ketepatan hitungan yang seimbang!`;
+          winnerColor = "text-amber-600";
+        }
+      }
+
+      const winTitleEl = document.getElementById("result-winner-title");
+      winTitleEl.textContent = winnerText;
+      winTitleEl.className = `font-heading font-black text-3xl sm:text-5xl ${winnerColor}`;
+      document.getElementById("result-winner-subtitle").textContent = winnerSubtitle;
+
+      // Isi Kartu Ringkasan
+      document.getElementById("res-name-red").textContent = gameState.teamRedName;
+      document.getElementById("res-score-red").textContent = `${gameState.scoreRed} Poin`;
+      document.getElementById("res-correct-red").textContent = `${gameState.stats.redCorrect} Soal`;
+      document.getElementById("res-wrong-red").textContent = `${gameState.stats.redWrong} Soal`;
+
+      const totalRedAttempt = gameState.stats.redCorrect + gameState.stats.redWrong;
+      const accRed = totalRedAttempt > 0 ? Math.round((gameState.stats.redCorrect / totalRedAttempt) * 100) : 0;
+      document.getElementById("res-acc-red").textContent = `${accRed}%`;
+
+      document.getElementById("res-name-blue").textContent = gameState.teamBlueName;
+      document.getElementById("res-score-blue").textContent = `${gameState.scoreBlue} Poin`;
+      document.getElementById("res-correct-blue").textContent = `${gameState.stats.blueCorrect} Soal`;
+      document.getElementById("res-wrong-blue").textContent = `${gameState.stats.blueWrong} Soal`;
+
+      const totalBlueAttempt = gameState.stats.blueCorrect + gameState.stats.blueWrong;
+      const accBlue = totalBlueAttempt > 0 ? Math.round((gameState.stats.blueCorrect / totalBlueAttempt) * 100) : 0;
+      document.getElementById("res-acc-blue").textContent = `${accBlue}%`;
+
+      // Durasi & Info
+      const mins = Math.floor(gameState.totalDurationSeconds / 60);
+      const secs = gameState.totalDurationSeconds % 60;
+      document.getElementById("res-total-time").textContent = `${mins}m ${secs}s`;
+      document.getElementById("res-skipped-count").textContent = `${gameState.stats.skipped} Soal`;
+
+      let finalRopeDesc = "Netral (0)";
+      if (gameState.ropeStep < 0) finalRopeDesc = `${Math.abs(gameState.ropeStep)} Langkah Kiri (Merah)`;
+      if (gameState.ropeStep > 0) finalRopeDesc = `${gameState.ropeStep} Langkah Kanan (Biru)`;
+      document.getElementById("res-final-rope").textContent = finalRopeDesc;
+
+      // Buat Tabel Rekapitulasi 50 Soal
+      renderRecapTable();
+    }
+
+    function renderRecapTable() {
+      const tbody = document.getElementById("table-recap-body");
+      tbody.innerHTML = "";
+
+      gameState.history.forEach((item) => {
+        const tr = document.createElement("tr");
+        tr.className = "hover:bg-slate-50 transition";
+
+        let statusBadge = "";
+        if (item.status === "BENAR") {
+          statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-emerald-100 text-emerald-800">BENAR</span>`;
+        } else if (item.status === "SALAH") {
+          statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-rose-100 text-rose-800">SALAH</span>`;
+        } else {
+          statusBadge = `<span class="px-2 py-0.5 rounded-full text-[10px] font-black bg-amber-100 text-amber-800">LEWAT</span>`;
+        }
+
+        let teamBadge = "-";
+        if (item.team === 'red') {
+          teamBadge = `<span class="font-bold text-red-600">Merah</span>`;
+        } else if (item.team === 'blue') {
+          teamBadge = `<span class="font-bold text-blue-600">Biru</span>`;
+        }
+
+        tr.innerHTML = `
+          <td class="p-2.5 text-center font-bold text-slate-500">${item.index}</td>
+          <td class="p-2.5 font-bold text-slate-800">${item.question}</td>
+          <td class="p-2.5 text-slate-600">${item.type}</td>
+          <td class="p-2.5 text-center">${teamBadge}</td>
+          <td class="p-2.5 text-center font-black ${item.status === 'BENAR' ? 'text-emerald-600' : 'text-rose-600'}">${item.chosen}</td>
+          <td class="p-2.5 text-center font-black text-slate-700">${item.correct}</td>
+          <td class="p-2.5 text-center">${statusBadge}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+
+    function restartSameGame() {
+      stopConfetti();
+      startGame();
+    }
+
+    function printResultReport() {
+      window.print();
+    }
+
+    /* =======================================================
+       10. ANIMASI KONFETI KEMENANGAN (CANVAS)
+       ======================================================= */
+    const confCanvas = document.getElementById("confettiCanvas");
+    const confCtx = confCanvas.getContext("2d");
+    let confParticles = [];
+    let confAnimId = null;
+
+    function resizeConfetti() {
+      confCanvas.width = window.innerWidth;
+      confCanvas.height = window.innerHeight;
+    }
+    window.addEventListener("resize", resizeConfetti);
+
+    function startConfetti() {
+      resizeConfetti();
+      confParticles = [];
+      const colors = ['#EF4444', '#3B82F6', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899'];
+      for (let i = 0; i < 120; i++) {
+        confParticles.push({
+          x: Math.random() * confCanvas.width,
+          y: Math.random() * confCanvas.height - confCanvas.height,
+          size: Math.random() * 8 + 5,
+          color: colors[Math.floor(Math.random() * colors.length)],
+          vx: Math.random() * 4 - 2,
+          vy: Math.random() * 4 + 3,
+          rot: Math.random() * 360,
+          rotSpeed: Math.random() * 6 - 3
+        });
+      }
+      renderConfetti();
+    }
+
+    function renderConfetti() {
+      confCtx.clearRect(0, 0, confCanvas.width, confCanvas.height);
+      confParticles.forEach(p => {
+        p.x += p.vx;
+        p.y += p.vy;
+        p.rot += p.rotSpeed;
+        if (p.y > confCanvas.height) {
+          p.y = -20;
+          p.x = Math.random() * confCanvas.width;
+        }
+
+        confCtx.save();
+        confCtx.translate(p.x, p.y);
+        confCtx.rotate((p.rot * Math.PI) / 180);
+        confCtx.fillStyle = p.color;
+        confCtx.fillRect(-p.size / 2, -p.size / 2, p.size, p.size * 1.5);
+        confCtx.restore();
+      });
+
+      confAnimId = requestAnimationFrame(renderConfetti);
+    }
+
+    function stopConfetti() {
+      if (confAnimId) {
+        cancelAnimationFrame(confAnimId);
+        confAnimId = null;
+      }
+      confCtx.clearRect(0, 0, confCanvas.width, confCanvas.height);
+    }
+
+    /* =======================================================
+       11. INISIALISASI & PERSAPAN PERMAINAN
+       ======================================================= */
+    function startGame() {
+      sfx.init();
+
+      // Ambil Nama Tim dari Form
+      const redInput = document.getElementById("input-team-red").value.trim();
+      const blueInput = document.getElementById("input-team-blue").value.trim();
+      gameState.teamRedName = redInput || "Garuda Merah";
+      gameState.teamBlueName = blueInput || "Rajawali Biru";
+
+      // Ambil Mode & Kesulitan
+      const modeSelected = document.querySelector('input[name="game-mode"]:checked').value;
+      const diffSelected = document.querySelector('input[name="difficulty-mode"]:checked').value;
+      gameState.mode = modeSelected;
+      gameState.difficulty = diffSelected;
+
+      // Siapkan Bank Soal
+      let preparedQuestions = JSON.parse(JSON.stringify(MASTER_QUESTIONS));
+
+      if (gameState.difficulty === 'mixed') {
+        // Acak urutan 50 soal
+        preparedQuestions.sort(() => Math.random() - 0.5);
+        // Opsi jawaban tetap valid karena kunci jawaban terkait dengan indeks
+      }
+
+      gameState.questions = preparedQuestions;
+      gameState.currentIndex = 0;
+      gameState.ropeStep = 0;
+      targetOffset = 0;
+      animOffset = 0;
+      gameState.scoreRed = 0;
+      gameState.scoreBlue = 0;
+      gameState.stats = {
+        redCorrect: 0,
+        redWrong: 0,
+        blueCorrect: 0,
+        blueWrong: 0,
+        skipped: 0
+      };
+      gameState.history = [];
+      gameState.isPaused = false;
+      gameState.isProcessingAnswer = false;
+      gameState.earlyWinTriggered = false;
+      gameState.startTime = new Date();
+
+      // Update Tampilan Nama Tim
+      document.getElementById("game-name-red").textContent = gameState.teamRedName;
+      document.getElementById("game-name-blue").textContent = gameState.teamBlueName;
+      document.getElementById("buzz-red-label").textContent = `${gameState.teamRedName.toUpperCase()} MENJAWAB`;
+      document.getElementById("buzz-blue-label").textContent = `${gameState.teamBlueName.toUpperCase()} MENJAWAB`;
+
+      updateScoresDisplay();
+      updateRopeStatusText();
+
+      // Transisi Layar
+      document.getElementById("screen-menu").classList.add("hidden");
+      document.getElementById("screen-result").classList.add("hidden");
+      document.getElementById("screen-game").classList.remove("hidden");
+
+      stopConfetti();
+
+      // Mulai Soal Pertama
+      loadQuestion();
+    }
+
+    /* =======================================================
+       12. KONTROL SUARA & MODAL HELPER
+       ======================================================= */
+    function toggleSound() {
+      sfx.enabled = !sfx.enabled;
+      const icon = sfx.enabled ? "🔊" : "🔇";
+      const text = sfx.enabled ? "Suara: AKTIF" : "Suara: MATI";
+
+      document.getElementById("sound-icon").textContent = icon;
+      document.getElementById("sound-label").textContent = text;
+      document.getElementById("game-sound-icon").textContent = icon;
+    }
+
+    function openModal(id) {
+      document.getElementById(id).classList.remove("hidden");
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.add("hidden");
+    }
+
+    // Keyboard Shortcuts (A, B, C, D atau 1, 2, 3, 4) untuk papan interaktif
+    window.addEventListener("keydown", (e) => {
+      if (document.getElementById("screen-game").classList.contains("hidden")) return;
+      if (gameState.isProcessingAnswer || gameState.isPaused) return;
+
+      const key = e.key.toUpperCase();
+      if (['A', '1'].includes(key)) handleAnswer('A');
+      else if (['B', '2'].includes(key)) handleAnswer('B');
+      else if (['C', '3'].includes(key)) handleAnswer('C');
+      else if (['D', '4'].includes(key)) handleAnswer('D');
+      else if (key === 'P' || key === 'ESCAPE') pauseGame();
+    });
+
+    // Jalankan Loop Animasi Canvas saat Halaman Selesai Dimuat
+    window.onload = function () {
+      resizeCanvas();
+      renderArena();
+    };
+  </script>
+</body>
+</html>

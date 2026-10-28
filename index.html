@@ -409,7 +409,7 @@
       </div>
 
       <!-- Canvas Lapangan Tarik Tambang -->
-      <canvas id="arenaCanvas" width="800" height="230" class="w-full h-auto rounded-xl bg-gradient-to-b from-sky-200 via-emerald-100 to-emerald-300 border border-emerald-400 shadow-inner block"></canvas>
+      <canvas id="arenaCanvas" width="800" height="250" class="w-full h-auto rounded-xl bg-gradient-to-b from-sky-200 via-emerald-100 to-emerald-300 border border-emerald-400 shadow-inner block"></canvas>
 
       <!-- Meteran Posisi Tali (-15 s/d +15) -->
       <div class="w-full px-2 sm:px-6 pt-2 flex items-center justify-between text-[11px] sm:text-xs font-bold text-slate-500">
@@ -770,187 +770,158 @@
     function resizeCanvas() {
       // Menjaga aspect ratio di canvas
       const rect = canvas.getBoundingClientRect();
-      // Internal coordinate tetap 800x230
     }
     window.addEventListener("resize", resizeCanvas);
 
     function createDustParticles(x, y, color) {
-      for (let i = 0; i < 10; i++) {
+      for (let i = 0; i < 14; i++) {
         particles.push({
-          x: x + (Math.random() * 20 - 10),
-          y: y + (Math.random() * 10 - 5),
-          vx: (Math.random() * 3 - 1.5),
-          vy: -(Math.random() * 2 + 1),
-          size: Math.random() * 4 + 2,
+          x: x + (Math.random() * 30 - 15),
+          y: y + (Math.random() * 12 - 6),
+          vx: (Math.random() * 4 - 2),
+          vy: -(Math.random() * 3 + 1),
+          size: Math.random() * 5 + 3,
           color: color,
-          alpha: 1,
-          life: 30
+          alpha: 0.9,
+          life: 35
         });
       }
     }
 
     function createStarParticles(x, y) {
-      for (let i = 0; i < 12; i++) {
+      for (let i = 0; i < 16; i++) {
         const angle = Math.random() * Math.PI * 2;
-        const speed = Math.random() * 3 + 1.5;
+        const speed = Math.random() * 4 + 1.5;
         particles.push({
           x: x,
           y: y,
           vx: Math.cos(angle) * speed,
           vy: Math.sin(angle) * speed,
           size: Math.random() * 5 + 3,
-          color: '#FBBF24',
+          color: Math.random() > 0.5 ? '#FBBF24' : '#FDE047',
           alpha: 1,
-          life: 35,
+          life: 40,
           isStar: true
         });
       }
     }
 
-    // Fungsi Render Loop
+    // Fungsi Render Loop Utama dengan Grafis 3D Stylized
     function renderArena() {
-      // Lerp tali menuju targetOffset
+      // Lerp posisi tali agar bergeser halus (smooth lerp)
       animOffset += (targetOffset - animOffset) * 0.12;
 
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
       const W = canvas.width;
       const H = canvas.height;
-      const centerY = H - 55;
+      const groundY = H - 75;
+      const centerY = H - 60;
       const centerX = W / 2 + animOffset;
+      const now = Date.now() * 0.003; // Waktu untuk osilasi gerak organik
 
-      // 1. Gambar Langit Lapangan & Awan
-      ctx.fillStyle = '#E0F2FE';
-      ctx.fillRect(0, 0, W, H);
+      // 1. Langit Lapangan & Cahaya Matahari 3D
+      const skyGrad = ctx.createLinearGradient(0, 0, 0, groundY);
+      skyGrad.addColorStop(0, '#BAE6FD');
+      skyGrad.addColorStop(0.7, '#E0F2FE');
+      skyGrad.addColorStop(1, '#F0FDF4');
+      ctx.fillStyle = skyGrad;
+      ctx.fillRect(0, 0, W, groundY);
 
-      // Gambar Rumput & Garis Lapangan
-      const groundY = H - 70;
-      ctx.fillStyle = '#10B981'; // Rumput segar
+      // Sinar Matahari Hangat di Pojok Kiri Atas
+      const sunGrad = ctx.createRadialGradient(80, 20, 10, 80, 20, 140);
+      sunGrad.addColorStop(0, 'rgba(254, 240, 138, 0.45)');
+      sunGrad.addColorStop(1, 'rgba(254, 240, 138, 0)');
+      ctx.fillStyle = sunGrad;
+      ctx.fillRect(0, 0, W, groundY);
+
+      // Awan Kartun Lembut
+      drawCloud(130, 35, 38);
+      drawCloud(420, 25, 30);
+      drawCloud(680, 45, 42);
+
+      // 2. Lapangan Rumput 3D dengan Perspektif
+      const grassGrad = ctx.createLinearGradient(0, groundY, 0, H);
+      grassGrad.addColorStop(0, '#10B981'); // Hijau segar atas
+      grassGrad.addColorStop(0.3, '#059669'); // Hijau lapangan
+      grassGrad.addColorStop(1, '#047857'); // Hijau dalam dasar
+      ctx.fillStyle = grassGrad;
       ctx.fillRect(0, groundY, W, H - groundY);
 
-      // Tekstur rumput bawah
-      ctx.fillStyle = '#059669';
-      ctx.fillRect(0, groundY + 15, W, H - (groundY + 15));
+      // Tekstur pita rumput vertikal (garis lapangan potong rapi)
+      for (let rx = 0; rx < W; rx += 70) {
+        ctx.fillStyle = 'rgba(255, 255, 255, 0.05)';
+        ctx.fillRect(rx, groundY, 35, H - groundY);
+      }
 
-      // Garis Batas Lapangan Sekolah (Putih Kapur)
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
+      // 3. Garis Batas Kemenangan & Tiang Bendera 3D (-15 s/d +15 Langkah)
+      const stepPixelWidth = 14;
+      const winLimitX_Left = W / 2 - (MAX_STEPS * stepPixelWidth);
+      const winLimitX_Right = W / 2 + (MAX_STEPS * stepPixelWidth);
+
+      // Garis Kapur Tengah (Netral 0)
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.7)';
       ctx.lineWidth = 4;
       ctx.setLineDash([8, 6]);
-
-      // Titik Tengah Tetap Lapangan
       ctx.beginPath();
       ctx.moveTo(W / 2, groundY);
       ctx.lineTo(W / 2, H);
       ctx.stroke();
-
-      // Garis Batas Kemenangan Merah (Kiri: -15 langkah) & Biru (Kanan: +15 langkah)
-      const stepPixelWidth = 14; // Jarak visual tiap langkah
-      const winLimitX_Left = W / 2 - (MAX_STEPS * stepPixelWidth);
-      const winLimitX_Right = W / 2 + (MAX_STEPS * stepPixelWidth);
-
       ctx.setLineDash([]);
-      ctx.lineWidth = 3;
 
-      // Batas Merah
-      ctx.strokeStyle = '#EF4444';
-      ctx.beginPath();
-      ctx.moveTo(winLimitX_Left, groundY - 15);
-      ctx.lineTo(winLimitX_Left, H);
-      ctx.stroke();
+      // Tiang Bendera 3D Tim Merah (Kiri)
+      draw3DFlagPost(winLimitX_Left, groundY + 15, 'red', 'MERAH');
+      // Tiang Bendera 3D Tim Biru (Kanan)
+      draw3DFlagPost(winLimitX_Right, groundY + 15, 'blue', 'BIRU');
 
-      // Batas Biru
-      ctx.strokeStyle = '#3B82F6';
-      ctx.beginPath();
-      ctx.moveTo(winLimitX_Right, groundY - 15);
-      ctx.lineTo(winLimitX_Right, H);
-      ctx.stroke();
-
-      // Indikator Garis Skala Ukur di Tanah
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
-      ctx.lineWidth = 1.5;
+      // Indikator Garis Skala Ukur di Rumput
       for (let s = -MAX_STEPS; s <= MAX_STEPS; s++) {
         const markX = W / 2 + (s * stepPixelWidth);
-        const markH = (s % 5 === 0) ? 10 : 5;
+        const isMajor = (s % 5 === 0);
+        ctx.strokeStyle = isMajor ? 'rgba(255, 255, 255, 0.7)' : 'rgba(255, 255, 255, 0.3)';
+        ctx.lineWidth = isMajor ? 2.5 : 1.2;
         ctx.beginPath();
-        ctx.moveTo(markX, H - markH);
-        ctx.lineTo(markX, H);
+        ctx.moveTo(markX, H - (isMajor ? 12 : 6));
+        ctx.lineTo(markX, H - 2);
         ctx.stroke();
       }
 
-      // 2. Gambar Karakter Tim Merah (Kiri)
-      // 3 Murid dengan pose menarik tali
-      const redPullAngle = isPullingRed ? -0.35 : -0.15;
-      drawKidGroup(centerX - 120, centerY + 8, 'red', redPullAngle, isPullingRed);
+      // 4. Render Karakter 3D Kelompok Merah (Kiri)
+      const redStrainAngle = isPullingRed ? -0.38 : -0.22;
+      drawKidGroup3D(centerX - 130, centerY, 'red', redStrainAngle, isPullingRed, now);
 
-      // 3. Gambar Karakter Tim Biru (Kanan)
-      // 3 Murid dengan pose menarik tali
-      const bluePullAngle = isPullingBlue ? 0.35 : 0.15;
-      drawKidGroup(centerX + 120, centerY + 8, 'blue', bluePullAngle, isPullingBlue);
+      // 5. Render Karakter 3D Kelompok Biru (Kanan)
+      const blueStrainAngle = isPullingBlue ? 0.38 : 0.22;
+      drawKidGroup3D(centerX + 130, centerY, 'blue', blueStrainAngle, isPullingBlue, now);
 
-      // 4. Gambar Tali Tambang Utama
-      ctx.save();
-      ctx.strokeStyle = '#854D0E'; // Cokelat tambang
-      ctx.lineWidth = 8;
-      ctx.lineCap = 'round';
-      ctx.beginPath();
-      // Sedikit lengkungan tegangan tali
-      ctx.moveTo(centerX - 240, centerY - 8);
-      ctx.quadraticCurveTo(centerX, centerY - (isPullingRed || isPullingBlue ? 12 : 6), centerX + 240, centerY - 8);
-      ctx.stroke();
+      // 6. Gambar Tali Tambang 3D (Silinder Bervolume & Serat Berpilin)
+      draw3DRope(centerX, centerY - 14, isPullingRed || isPullingBlue, now);
 
-      // Lilitan Serat Tali (Detail spiral)
-      ctx.strokeStyle = '#CA8A04';
-      ctx.lineWidth = 2;
-      ctx.setLineDash([4, 4]);
-      ctx.stroke();
-      ctx.restore();
-
-      // 5. Gambar Pita / Bendera Merah di Tengah Tali
-      ctx.save();
-      ctx.translate(centerX, centerY - 10);
-      // Ikatan Pita
-      ctx.fillStyle = '#DC2626';
-      ctx.beginPath();
-      ctx.arc(0, 0, 7, 0, Math.PI * 2);
-      ctx.fill();
-      ctx.strokeStyle = '#FFFFFF';
-      ctx.lineWidth = 2;
-      ctx.stroke();
-
-      // Kain pita menjuntai ke bawah
-      ctx.fillStyle = '#EF4444';
-      ctx.beginPath();
-      ctx.moveTo(-6, 2);
-      ctx.lineTo(6, 2);
-      ctx.lineTo(10, 26);
-      ctx.lineTo(0, 18);
-      ctx.lineTo(-10, 26);
-      ctx.closePath();
-      ctx.fill();
-      ctx.stroke();
-      ctx.restore();
-
-      // 6. Gambar Partikel (Debu & Bintang Kemenangan)
+      // 7. Partikel Debu & Kilauan Bintang
       for (let i = particles.length - 1; i >= 0; i--) {
         const p = particles[i];
         p.x += p.vx;
         p.y += p.vy;
-        p.alpha -= 0.03;
+        p.alpha -= 0.025;
         p.life--;
 
         ctx.save();
         ctx.globalAlpha = Math.max(0, p.alpha);
         ctx.fillStyle = p.color;
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fill();
+
         if (p.isStar) {
-          // Bintang sederhana
+          // Efek kilau 3D pada bintang kemenangan
+          ctx.strokeStyle = '#FFFFFF';
+          ctx.lineWidth = 1.5;
           ctx.beginPath();
-          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-          ctx.fill();
-        } else {
-          // Gumpalan debu
-          ctx.beginPath();
-          ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-          ctx.fill();
+          ctx.moveTo(p.x - p.size * 1.5, p.y);
+          ctx.lineTo(p.x + p.size * 1.5, p.y);
+          ctx.moveTo(p.x, p.y - p.size * 1.5);
+          ctx.lineTo(p.x, p.y + p.size * 1.5);
+          ctx.stroke();
         }
         ctx.restore();
 
@@ -959,7 +930,7 @@
         }
       }
 
-      // Hitung mundurnya durasi animasi tarikan
+      // Durasi animasi tarikan aktif
       if (pullAnimTimer > 0) {
         pullAnimTimer--;
         if (pullAnimTimer === 0) {
@@ -971,87 +942,627 @@
       requestAnimationFrame(renderArena);
     }
 
-    // Fungsi Menggambar Karakter Kartun Anak SD
-    function drawKidGroup(baseX, baseY, team, leanAngle, isStraining) {
-      // Gambar 3 anak berjejer menarik tambang
-      const offsets = team === 'red' ? [-60, -30, 0] : [0, 30, 60];
-      offsets.forEach((off, i) => {
-        drawKid(baseX + off, baseY, team, leanAngle + (i * 0.03 * (team === 'red' ? -1 : 1)), isStraining, i);
+    // Helper: Gambar Awan Kartun
+    function drawCloud(x, y, r) {
+      ctx.save();
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.75)';
+      ctx.beginPath();
+      ctx.arc(x, y, r, 0, Math.PI * 2);
+      ctx.arc(x + r * 0.7, y - r * 0.2, r * 0.7, 0, Math.PI * 2);
+      ctx.arc(x + r * 1.3, y + r * 0.1, r * 0.6, 0, Math.PI * 2);
+      ctx.arc(x - r * 0.6, y + r * 0.1, r * 0.55, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.restore();
+    }
+
+    // Helper: Tiang Bendera 3D dengan Shading & Kain Berkibar
+    function draw3DFlagPost(x, baseY, team, label) {
+      ctx.save();
+
+      // Bayangan Tiang di Tanah
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.2)';
+      ctx.beginPath();
+      ctx.ellipse(x + 4, baseY, 12, 4, 0, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Tiang Kayu / Metal 3D
+      const poleGrad = ctx.createLinearGradient(x - 3, 0, x + 3, 0);
+      poleGrad.addColorStop(0, '#E2E8F0');
+      poleGrad.addColorStop(0.4, '#FFFFFF');
+      poleGrad.addColorStop(1, '#94A3B8');
+      ctx.fillStyle = poleGrad;
+      ctx.fillRect(x - 3, baseY - 120, 6, 120);
+
+      // Bola Emas Puncak Tiang
+      const ballGrad = ctx.createRadialGradient(x - 2, baseY - 123, 1, x, baseY - 121, 6);
+      ballGrad.addColorStop(0, '#FEF08A');
+      ballGrad.addColorStop(0.4, '#F59E0B');
+      ballGrad.addColorStop(1, '#B45309');
+      ctx.fillStyle = ballGrad;
+      ctx.beginPath();
+      ctx.arc(x, baseY - 121, 6, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Bendera Segitiga 3D Berkibar
+      const isRed = team === 'red';
+      const flagX = isRed ? x - 42 : x + 42;
+      const wave = Math.sin(Date.now() * 0.005 + x) * 3;
+
+      const flagGrad = ctx.createLinearGradient(x, baseY - 115, flagX, baseY - 100);
+      if (isRed) {
+        flagGrad.addColorStop(0, '#DC2626');
+        flagGrad.addColorStop(0.5, '#EF4444');
+        flagGrad.addColorStop(1, '#B91C1C');
+      } else {
+        flagGrad.addColorStop(0, '#2563EB');
+        flagGrad.addColorStop(0.5, '#3B82F6');
+        flagGrad.addColorStop(1, '#1D4ED8');
+      }
+
+      ctx.fillStyle = flagGrad;
+      ctx.beginPath();
+      ctx.moveTo(x, baseY - 118);
+      ctx.quadraticCurveTo((x + flagX) / 2, baseY - 115 + wave, flagX, baseY - 100 + wave);
+      ctx.lineTo(x, baseY - 85);
+      ctx.closePath();
+      ctx.fill();
+
+      // Label Nama Tim Kecil di Bendera
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 8px Fredoka, sans-serif';
+      ctx.textAlign = isRed ? 'right' : 'left';
+      ctx.fillText(label, isRed ? x - 8 : x + 8, baseY - 102 + wave * 0.5);
+
+      ctx.restore();
+    }
+
+    // Helper: Tali Tambang 3D dengan Shading Silinder & Pita Merah Bervolume
+    function draw3DRope(centerX, centerY, isStraining, now) {
+      ctx.save();
+
+      const startX = centerX - 260;
+      const endX = centerX + 260;
+      const sag = isStraining ? 4 : 8; // Tali lebih tegang lurus saat ditarik kuat
+
+      // 1. Shading Tali Utama: Silinder 3D
+      const ropeGrad = ctx.createLinearGradient(0, centerY - 6, 0, centerY + 6);
+      ropeGrad.addColorStop(0, '#D97706'); // Highlight atas
+      ropeGrad.addColorStop(0.3, '#F59E0B'); // Puncak terang
+      ropeGrad.addColorStop(0.7, '#B45309'); // Warna tambang alami
+      ropeGrad.addColorStop(1, '#78350F'); // Shadow bawah
+
+      ctx.strokeStyle = ropeGrad;
+      ctx.lineWidth = 10;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(startX, centerY);
+      ctx.quadraticCurveTo(centerX, centerY + sag, endX, centerY);
+      ctx.stroke();
+
+      // 2. Efek Lilitan Serat Tambang 3D
+      ctx.strokeStyle = 'rgba(254, 243, 199, 0.45)';
+      ctx.lineWidth = 2.5;
+      ctx.setLineDash([6, 5]);
+      ctx.beginPath();
+      ctx.moveTo(startX, centerY - 2);
+      ctx.quadraticCurveTo(centerX, centerY + sag - 2, endX, centerY - 2);
+      ctx.stroke();
+      ctx.setLineDash([]);
+
+      // 3. Klem Cincin Emas di Pusat Penanda Tali
+      const knotY = centerY + sag;
+      const ringGrad = ctx.createRadialGradient(centerX - 2, knotY - 2, 1, centerX, knotY, 8);
+      ringGrad.addColorStop(0, '#FEF08A');
+      ringGrad.addColorStop(0.6, '#F59E0B');
+      ringGrad.addColorStop(1, '#92400E');
+      ctx.fillStyle = ringGrad;
+      ctx.beginPath();
+      ctx.arc(centerX, knotY, 8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.strokeStyle = '#FFFFFF';
+      ctx.lineWidth = 1.5;
+      ctx.stroke();
+
+      // 4. Pita Merah 3D Menggantung dengan Gerakan Kain Realistis
+      const ribbonWave = Math.sin(now * 4) * 4;
+      const ribbonGrad = ctx.createLinearGradient(centerX - 8, knotY, centerX + 8, knotY + 34);
+      ribbonGrad.addColorStop(0, '#EF4444');
+      ribbonGrad.addColorStop(0.5, '#DC2626');
+      ribbonGrad.addColorStop(1, '#991B1B');
+
+      ctx.fillStyle = ribbonGrad;
+      ctx.beginPath();
+      ctx.moveTo(centerX - 6, knotY + 4);
+      ctx.quadraticCurveTo(centerX - 8 + ribbonWave * 0.5, knotY + 18, centerX - 10 + ribbonWave, knotY + 34);
+      ctx.lineTo(centerX + ribbonWave * 0.8, knotY + 26);
+      ctx.lineTo(centerX + 10 + ribbonWave, knotY + 34);
+      ctx.quadraticCurveTo(centerX + 8 + ribbonWave * 0.5, knotY + 18, centerX + 6, knotY + 4);
+      ctx.closePath();
+      ctx.fill();
+
+      // Highlight garis lipatan kain
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.4)';
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(centerX, knotY + 6);
+      ctx.lineTo(centerX + ribbonWave * 0.8, knotY + 26);
+      ctx.stroke();
+
+      ctx.restore();
+    }
+
+    // Menggambar Kelompok 3 Anak SD dengan Karakteristik Berbeda
+    function drawKidGroup3D(baseX, baseY, team, leanAngle, isStraining, time) {
+      // Formasi 3 murid: Posisi 0 (Depan), Posisi 1 (Tengah), Posisi 2 (Jangkar Belakang)
+      const isRed = team === 'red';
+      const spacing = isRed ? [-65, -32, 5] : [5, 32, 65];
+
+      // Gambar dari anak paling belakang ke paling depan agar layering tangan & tubuh presisi
+      const renderOrder = isRed ? [0, 1, 2] : [2, 1, 0];
+      renderOrder.forEach(idx => {
+        const posX = baseX + spacing[idx];
+        // Ayunan napas / hentakan tarikan
+        const bob = Math.sin(time * 3 + idx * 1.2) * (isStraining ? 1.5 : 2.5);
+        drawKid3D(posX, baseY + bob, team, leanAngle, isStraining, idx, time);
       });
     }
 
-    function drawKid(x, y, team, angle, isStraining, index) {
+    // Fungsi Menggambar 1 Karakter Kartun 3D Bervolume Lengkap
+    function drawKid3D(x, y, team, baseAngle, isStraining, index, time) {
       ctx.save();
       ctx.translate(x, y);
+
+      const isRed = team === 'red';
+      // Koreksi sudut tarikan: anak belakang menahan beban lebih condong
+      const extraLean = (index === 0 ? 0.08 : (index === 2 ? -0.06 : 0)) * (isRed ? 1 : -1);
+      const angle = baseAngle + extraLean;
       ctx.rotate(angle);
 
-      const shirtColor = team === 'red' ? '#EF4444' : '#3B82F6';
-      const pantsColor = team === 'red' ? '#991B1B' : '#1E3A8A';
-      const skinColor = '#FDE68A';
+      // ==========================================
+      // PALET WARNA 3D BERVOLUME
+      // ==========================================
+      const skinTone = index === 1 ? '#FED7AA' : (index === 2 ? '#FDE68A' : '#FCD34D');
+      const skinShadow = index === 1 ? '#FB923C' : (index === 2 ? '#F59E0B' : '#D97706');
 
-      // Kaki di tanah menahan tarikan
-      ctx.fillStyle = pantsColor;
-      ctx.fillRect(-8, -25, 7, 24);
-      ctx.fillRect(2, -25, 7, 24);
+      // Warna Seragam / Tim (Merah / Biru)
+      const primaryColor = isRed ? '#EF4444' : '#3B82F6';
+      const lightColor = isRed ? '#FCA5A5' : '#93C5FD';
+      const darkColor = isRed ? '#991B1B' : '#1D4ED8';
+      const deepDark = isRed ? '#7F1D1D' : '#172554';
 
-      // Sepatu
-      ctx.fillStyle = '#1F2937';
+      // 1. Bayangan Ambient Occlusion di Rumput (3D Ground Shadow)
+      ctx.save();
+      // Reset rotasi untuk bayangan tanah
+      ctx.rotate(-angle);
+      const shadowGrad = ctx.createRadialGradient(0, 0, 4, 0, 0, 24);
+      shadowGrad.addColorStop(0, 'rgba(4, 120, 87, 0.6)');
+      shadowGrad.addColorStop(1, 'rgba(4, 120, 87, 0)');
+      ctx.fillStyle = shadowGrad;
       ctx.beginPath();
-      ctx.ellipse(-5, 0, 7, 4, 0, 0, Math.PI * 2);
-      ctx.ellipse(5, 0, 7, 4, 0, 0, Math.PI * 2);
+      ctx.ellipse(isRed ? 10 : -10, 0, 26, 8, 0, 0, Math.PI * 2);
       ctx.fill();
+      ctx.restore();
 
-      // Badan / Kaos
-      ctx.fillStyle = shirtColor;
-      ctx.beginPath();
-      ctx.roundRect(-12, -55, 24, 32, [6]);
-      ctx.fill();
+      // 2. Kaki Belakang (Posisi menapak jauh untuk daya tumpu)
+      draw3DLeg(-10, -32, 12, 32, deepDark, '#1E293B', skinTone, isRed, true);
 
-      // Kepala
-      ctx.fillStyle = skinColor;
-      ctx.beginPath();
-      ctx.arc(0, -68, 12, 0, Math.PI * 2);
-      ctx.fill();
+      // 3. Lengan Belakang (Menjangkau ke tali di seberang badan)
+      draw3DArm(isRed ? 6 : -6, -56, isRed ? 22 : -22, -24, darkColor, skinTone, true);
 
-      // Rambut Anak
-      ctx.fillStyle = index % 2 === 0 ? '#451A03' : '#1C1917';
-      ctx.beginPath();
-      ctx.arc(0, -73, 12, Math.PI, Math.PI * 2);
-      ctx.fill();
+      // 4. Badan / Kaos 3D (Silinder dengan Pencahayaan Samping)
+      const bodyX = -13;
+      const bodyY = -66;
+      const bodyW = 26;
+      const bodyH = 36;
 
-      // Wajah Senang / Bersemangat
-      ctx.fillStyle = '#1F2937';
-      // Mata
-      ctx.beginPath();
-      if (isStraining) {
-        // Mata sipit berjuang
-        ctx.arc(-4, -69, 1.5, 0, Math.PI * 2);
-        ctx.arc(4, -69, 1.5, 0, Math.PI * 2);
+      const bodyGrad = ctx.createLinearGradient(bodyX, 0, bodyX + bodyW, 0);
+      if (isRed) {
+        bodyGrad.addColorStop(0, lightColor);
+        bodyGrad.addColorStop(0.35, primaryColor);
+        bodyGrad.addColorStop(0.85, darkColor);
+        bodyGrad.addColorStop(1, deepDark);
       } else {
-        ctx.arc(-4, -68, 2, 0, Math.PI * 2);
-        ctx.arc(4, -68, 2, 0, Math.PI * 2);
+        bodyGrad.addColorStop(0, deepDark);
+        bodyGrad.addColorStop(0.2, darkColor);
+        bodyGrad.addColorStop(0.7, primaryColor);
+        bodyGrad.addColorStop(1, lightColor);
       }
+
+      ctx.fillStyle = bodyGrad;
+      ctx.beginPath();
+      ctx.roundRect(bodyX, bodyY, bodyW, bodyH, [8, 8, 4, 4]);
       ctx.fill();
 
-      // Mulut
-      ctx.strokeStyle = '#DC2626';
-      ctx.lineWidth = 1.5;
+      // Kerah Baju 3D Putih
+      ctx.fillStyle = '#FFFFFF';
       ctx.beginPath();
-      ctx.arc(0, -63, 3, 0, Math.PI);
+      ctx.arc(0, bodyY + 3, 7, 0, Math.PI);
+      ctx.fill();
+      ctx.strokeStyle = '#CBD5E1';
+      ctx.lineWidth = 1;
       ctx.stroke();
 
-      // Tangan Memegang Tali
-      ctx.fillStyle = skinColor;
+      // Logo Nomor / Emblem Tim 3D
+      ctx.fillStyle = '#FFFFFF';
+      ctx.font = 'bold 9px Fredoka, sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText(index === 0 ? '1' : (index === 1 ? '★' : '3'), 0, bodyY + 22);
+
+      // 5. Celana Pendek 3D
+      const pantsGrad = ctx.createLinearGradient(-13, 0, 13, 0);
+      pantsGrad.addColorStop(0, isRed ? '#991B1B' : '#1E3A8A');
+      pantsGrad.addColorStop(0.5, isRed ? '#B91C1C' : '#1D4ED8');
+      pantsGrad.addColorStop(1, isRed ? '#7F1D1D' : '#172554');
+      ctx.fillStyle = pantsGrad;
       ctx.beginPath();
-      ctx.arc(team === 'red' ? 10 : -10, -38, 5, 0, Math.PI * 2);
+      ctx.roundRect(-13, bodyY + bodyH - 4, 26, 12, [2, 2, 4, 4]);
       ctx.fill();
 
-      // Keringat / Tetesan Semangat saat menarik
-      if (isStraining && index === 1) {
-        ctx.fillStyle = '#38BDF8';
+      // 6. Kaki Depan (Menapak kokoh, menekuk menahan tarikan)
+      draw3DLeg(4, -30, 14, 30, isRed ? '#B91C1C' : '#2563EB', '#111827', skinTone, isRed, false);
+
+      // 7. Lengan Depan & Tangan Menggenggam Tali
+      draw3DArm(isRed ? 4 : -4, -54, isRed ? 24 : -24, -20, primaryColor, skinTone, false);
+
+      // 8. Leher 3D
+      const neckGrad = ctx.createLinearGradient(-4, 0, 4, 0);
+      neckGrad.addColorStop(0, skinTone);
+      neckGrad.addColorStop(1, skinShadow);
+      ctx.fillStyle = neckGrad;
+      ctx.fillRect(-4, -72, 8, 8);
+
+      // 9. Kepala 3D Bervolume (Sferis dengan Highlight Matahari)
+      const headCenterY = -84;
+      const headGrad = ctx.createRadialGradient(-3, headCenterY - 4, 2, 0, headCenterY, 15);
+      headGrad.addColorStop(0, '#FFFBEB');
+      headGrad.addColorStop(0.25, skinTone);
+      headGrad.addColorStop(0.85, skinShadow);
+      headGrad.addColorStop(1, '#B45309');
+
+      ctx.fillStyle = headGrad;
+      ctx.beginPath();
+      ctx.arc(0, headCenterY, 14, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Telinga 3D
+      const earX = isRed ? -13 : 13;
+      ctx.fillStyle = skinTone;
+      ctx.beginPath();
+      ctx.arc(earX, headCenterY + 1, 3.5, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = skinShadow;
+      ctx.beginPath();
+      ctx.arc(earX, headCenterY + 1, 1.8, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Pipi Merona 3D (Blush Ceria Anak SD)
+      ctx.fillStyle = 'rgba(244, 63, 94, 0.4)';
+      ctx.beginPath();
+      ctx.arc(-6, headCenterY + 4, 3, 0, Math.PI * 2);
+      ctx.arc(6, headCenterY + 4, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Hidung Kancing Imut 3D
+      ctx.fillStyle = skinShadow;
+      ctx.beginPath();
+      ctx.arc(0, headCenterY + 1, 1.8, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.fillStyle = '#FFFFFF';
+      ctx.beginPath();
+      ctx.arc(-0.5, headCenterY + 0.5, 0.6, 0, Math.PI * 2);
+      ctx.fill();
+
+      // 10. Mata Kartun 3D Hidup (Pupil, Iris & Catchlight)
+      draw3DEyes(0, headCenterY - 2, isStraining, isRed);
+
+      // 11. Mulut Ekspresif
+      ctx.lineWidth = 1.8;
+      ctx.lineCap = 'round';
+      if (isStraining) {
+        // Ekspresi menggigit gigi / berjuang sekuat tenaga
+        ctx.fillStyle = '#FFFFFF';
+        ctx.strokeStyle = '#991B1B';
         ctx.beginPath();
-        ctx.arc(14, -75, 3, 0, Math.PI * 2);
+        ctx.roundRect(-5, headCenterY + 5, 10, 4.5, [2]);
         ctx.fill();
+        ctx.stroke();
+        // Garis gigi
+        ctx.strokeStyle = '#E2E8F0';
+        ctx.lineWidth = 1;
+        ctx.beginPath();
+        ctx.moveTo(0, headCenterY + 5);
+        ctx.lineTo(0, headCenterY + 9.5);
+        ctx.stroke();
+      } else {
+        // Senyum percaya diri
+        ctx.strokeStyle = '#991B1B';
+        ctx.beginPath();
+        ctx.arc(0, headCenterY + 4, 4, 0.2, Math.PI - 0.2);
+        ctx.stroke();
+      }
+
+      // 12. Rambut & Topi 3D (Variasi per Karakter)
+      draw3DHairstyle(0, headCenterY, index, isRed, primaryColor, lightColor, deepDark);
+
+      // 13. Tetes Keringat Semangat saat Menarik Kuat
+      if (isStraining && (index === 0 || index === 2)) {
+        const sweatX = isRed ? 14 : -14;
+        const sweatGrad = ctx.createRadialGradient(sweatX - 1, headCenterY - 10, 1, sweatX, headCenterY - 8, 4);
+        sweatGrad.addColorStop(0, '#E0F2FE');
+        sweatGrad.addColorStop(0.6, '#38BDF8');
+        sweatGrad.addColorStop(1, '#0284C7');
+        ctx.fillStyle = sweatGrad;
+        ctx.beginPath();
+        ctx.arc(sweatX, headCenterY - 8, 3.5, 0, Math.PI * 2);
+        ctx.fill();
+      }
+
+      ctx.restore();
+    }
+
+    // Helper: Menggambar Kaki 3D dengan Sepatu Sneaker Bervolume
+    function draw3DLeg(x, y, w, h, pantsColor, shoeColor, skinColor, isRed, isBackLeg) {
+      ctx.save();
+      ctx.translate(x, y);
+
+      // Paha / Kaki Kulit
+      ctx.fillStyle = skinColor;
+      ctx.fillRect(-w / 2 + 2, 0, w - 4, h - 8);
+
+      // Kaos Kaki Putih Olahraga
+      ctx.fillStyle = '#FFFFFF';
+      ctx.fillRect(-w / 2 + 1, h - 14, w - 2, 6);
+      // Garis strip kaos kaki
+      ctx.fillStyle = isRed ? '#EF4444' : '#3B82F6';
+      ctx.fillRect(-w / 2 + 1, h - 12, w - 2, 1.5);
+
+      // Sepatu Sneaker 3D
+      const shoeGrad = ctx.createLinearGradient(-w / 2, h - 8, w / 2 + 4, h);
+      shoeGrad.addColorStop(0, isBackLeg ? '#334155' : shoeColor);
+      shoeGrad.addColorStop(0.5, isBackLeg ? '#1E293B' : '#374151');
+      shoeGrad.addColorStop(1, '#0F172A');
+      ctx.fillStyle = shoeGrad;
+
+      ctx.beginPath();
+      ctx.roundRect(-w / 2 - 2, h - 8, w + 6, 8, [4, 4, 2, 2]);
+      ctx.fill();
+
+      // Sol Sepatu Putih 3D
+      ctx.fillStyle = '#F8FAFC';
+      ctx.fillRect(-w / 2 - 2, h - 2, w + 6, 2.5);
+
+      // Ujung Depan Sepatu Putih (Toe Cap)
+      ctx.fillStyle = '#E2E8F0';
+      const toeX = isRed ? -w / 2 - 2 : w / 2 + 1;
+      ctx.beginPath();
+      ctx.arc(toeX, h - 4, 3, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    // Helper: Menggambar Lengan & Tangan 3D yang Menggenggam Tali
+    function draw3DArm(startX, startY, reachX, reachY, sleeveColor, skinColor, isBackArm) {
+      ctx.save();
+
+      // Lengan Baju 3D
+      ctx.fillStyle = sleeveColor;
+      ctx.beginPath();
+      ctx.ellipse(startX, startY, 6, 5, isBackArm ? 0.3 : -0.3, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Lengan Kulit (Otot Tegang)
+      ctx.strokeStyle = skinColor;
+      ctx.lineWidth = 6.5;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(startX, startY);
+      const elbowX = (startX + reachX) / 2 + (isBackArm ? -4 : 4);
+      const elbowY = (startY + reachY) / 2 + 4;
+      ctx.quadraticCurveTo(elbowX, elbowY, reachX, reachY);
+      ctx.stroke();
+
+      // Shadow di bawah lengan
+      ctx.strokeStyle = 'rgba(180, 83, 9, 0.35)';
+      ctx.lineWidth = 1.8;
+      ctx.beginPath();
+      ctx.moveTo(elbowX, elbowY);
+      ctx.lineTo(reachX, reachY);
+      ctx.stroke();
+
+      // Telapak Tangan Menggenggam Erat Tali (3D Fist)
+      const handGrad = ctx.createRadialGradient(reachX - 1, reachY - 1, 1, reachX, reachY, 5);
+      handGrad.addColorStop(0, '#FFFBEB');
+      handGrad.addColorStop(0.5, skinColor);
+      handGrad.addColorStop(1, '#D97706');
+      ctx.fillStyle = handGrad;
+      ctx.beginPath();
+      ctx.arc(reachX, reachY, 5.5, 0, Math.PI * 2);
+      ctx.fill();
+
+      // Jari-jari 3D Menutupi Tali
+      ctx.fillStyle = skinColor;
+      ctx.strokeStyle = '#B45309';
+      ctx.lineWidth = 0.8;
+      for (let f = -3; f <= 3; f += 3) {
+        ctx.beginPath();
+        ctx.arc(reachX + f * 0.7, reachY - 1, 2, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.stroke();
+      }
+
+      ctx.restore();
+    }
+
+    // Helper: Mata 3D Berkilau & Ekspresif
+    function draw3DEyes(centerX, centerY, isStraining, isRed) {
+      const eyeSpacing = 5.5;
+
+      [-eyeSpacing, eyeSpacing].forEach((ex, i) => {
+        if (isStraining) {
+          // Mata Sipit Berjuang (Energi Penuh)
+          ctx.strokeStyle = '#1F2937';
+          ctx.lineWidth = 2.2;
+          ctx.beginPath();
+          ctx.arc(centerX + ex, centerY, 3.5, 0.8 * Math.PI, 0.2 * Math.PI, true);
+          ctx.stroke();
+
+          // Alis Menukik Tajam Menandakan Fokus
+          ctx.lineWidth = 2;
+          ctx.strokeStyle = '#111827';
+          ctx.beginPath();
+          if (i === 0) {
+            ctx.moveTo(centerX + ex - 3, centerY - 4);
+            ctx.lineTo(centerX + ex + 3, centerY - 2);
+          } else {
+            ctx.moveTo(centerX + ex - 3, centerY - 2);
+            ctx.lineTo(centerX + ex + 3, centerY - 4);
+          }
+          ctx.stroke();
+        } else {
+          // Mata Terbuka Bulat Berkilau 3D (Pixar Style)
+          // Bagian Putih Mata
+          ctx.fillStyle = '#FFFFFF';
+          ctx.beginPath();
+          ctx.arc(centerX + ex, centerY, 3.8, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Iris Berwarna Gradien
+          const irisGrad = ctx.createRadialGradient(centerX + ex, centerY, 0.5, centerX + ex, centerY, 2.8);
+          irisGrad.addColorStop(0, isRed ? '#F59E0B' : '#38BDF8');
+          irisGrad.addColorStop(1, isRed ? '#78350F' : '#1E3A8A');
+          ctx.fillStyle = irisGrad;
+          ctx.beginPath();
+          ctx.arc(centerX + ex + (isRed ? -0.5 : 0.5), centerY, 2.6, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Pupil Hitam
+          ctx.fillStyle = '#0F172A';
+          ctx.beginPath();
+          ctx.arc(centerX + ex + (isRed ? -0.5 : 0.5), centerY, 1.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Specular Catchlight Ganda (Kilau Kaca 3D)
+          ctx.fillStyle = '#FFFFFF';
+          ctx.beginPath();
+          ctx.arc(centerX + ex - 0.8, centerY - 1.2, 1, 0, Math.PI * 2);
+          ctx.arc(centerX + ex + 0.8, centerY + 0.6, 0.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Alis Lengkung Ramah
+          ctx.strokeStyle = '#334155';
+          ctx.lineWidth = 1.5;
+          ctx.beginPath();
+          ctx.arc(centerX + ex, centerY - 5, 3.5, 1.1 * Math.PI, 1.9 * Math.PI);
+          ctx.stroke();
+        }
+      });
+    }
+
+    // Helper: Gaya Rambut & Aksesori Topi 3D
+    function draw3DHairstyle(x, headY, index, isRed, primaryColor, lightColor, darkColor) {
+      ctx.save();
+      ctx.translate(x, headY);
+
+      if (index === 0) {
+        // Karakter 1: Topi Baseball Snapback 3D Diputar ke Belakang
+        const capGrad = ctx.createLinearGradient(-14, -8, 14, 4);
+        capGrad.addColorStop(0, lightColor);
+        capGrad.addColorStop(0.5, primaryColor);
+        capGrad.addColorStop(1, darkColor);
+
+        ctx.fillStyle = capGrad;
+        ctx.beginPath();
+        ctx.arc(0, -3, 14.5, Math.PI, 0, false);
+        ctx.fill();
+
+        // Lidah Topi 3D di Belakang
+        const visorGrad = ctx.createLinearGradient(0, -14, 0, -6);
+        visorGrad.addColorStop(0, darkColor);
+        visorGrad.addColorStop(1, primaryColor);
+        ctx.fillStyle = visorGrad;
+        ctx.beginPath();
+        const visorDir = isRed ? 8 : -8;
+        ctx.roundRect(-8 + visorDir, -15, 16, 5, [3]);
+        ctx.fill();
+
+        // Kancing Atas Topi
+        ctx.fillStyle = '#FFFFFF';
+        ctx.beginPath();
+        ctx.arc(0, -17.5, 2.5, 0, Math.PI * 2);
+        ctx.fill();
+
+        // Poni Rambut Depan
+        ctx.fillStyle = '#1E1B4B';
+        ctx.beginPath();
+        ctx.arc(-7, -4, 4, 0, Math.PI);
+        ctx.arc(0, -5, 4.5, 0, Math.PI);
+        ctx.arc(7, -4, 4, 0, Math.PI);
+        ctx.fill();
+
+      } else if (index === 1) {
+        // Karakter 2: Anak Perempuan dengan Cepol Kembar 3D (Glossy Hair Buns)
+        const hairGrad = ctx.createRadialGradient(-3, -10, 2, 0, -6, 16);
+        hairGrad.addColorStop(0, '#78350F');
+        hairGrad.addColorStop(0.6, '#451A03');
+        hairGrad.addColorStop(1, '#1C1917');
+
+        // Rambut Dasar
+        ctx.fillStyle = hairGrad;
+        ctx.beginPath();
+        ctx.arc(0, -5, 15, Math.PI * 0.9, Math.PI * 2.1, false);
+        ctx.fill();
+
+        // 2 Cepol Kembar Sferis 3D
+        [-13, 13].forEach(bunX => {
+          // Ikat Rambut Warna Tim
+          ctx.fillStyle = primaryColor;
+          ctx.beginPath();
+          ctx.arc(bunX, -16, 4.5, 0, Math.PI * 2);
+          ctx.fill();
+
+          // Bola Rambut Cepol dengan Highlight Kilau
+          const bunGrad = ctx.createRadialGradient(bunX - 2, -22, 1, bunX, -20, 7);
+          bunGrad.addColorStop(0, '#92400E');
+          bunGrad.addColorStop(0.5, '#451A03');
+          bunGrad.addColorStop(1, '#0C0A09');
+          ctx.fillStyle = bunGrad;
+          ctx.beginPath();
+          ctx.arc(bunX, -20, 6.5, 0, Math.PI * 2);
+          ctx.fill();
+        });
+
+      } else {
+        // Karakter 3: Anak Tangguh dengan Ikat Kepala Atletik (Headband 3D)
+        // Rambut Spiky Berkarakter
+        ctx.fillStyle = '#172554';
+        ctx.beginPath();
+        ctx.arc(0, -4, 15, Math.PI, 0);
+        ctx.lineTo(12, -20);
+        ctx.lineTo(6, -17);
+        ctx.lineTo(0, -22);
+        ctx.lineTo(-6, -17);
+        ctx.lineTo(-12, -20);
+        ctx.closePath();
+        ctx.fill();
+
+        // Ikat Kepala 3D
+        const bandGrad = ctx.createLinearGradient(-15, 0, 15, 0);
+        bandGrad.addColorStop(0, '#FFFFFF');
+        bandGrad.addColorStop(0.5, isRed ? '#FEE2E2' : '#DBEAFE');
+        bandGrad.addColorStop(1, '#E2E8F0');
+
+        ctx.fillStyle = bandGrad;
+        ctx.fillRect(-14, -11, 28, 5.5);
+        ctx.strokeStyle = primaryColor;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(-14, -11, 28, 5.5);
+
+        // Bintang Kecil di Tengah Ikat Kepala
+        ctx.fillStyle = primaryColor;
+        ctx.font = 'bold 7px sans-serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('★', 0, -7);
       }
 
       ctx.restore();
